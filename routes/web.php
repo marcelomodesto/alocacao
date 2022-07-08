@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SchoolTermController;
+use App\Http\Controllers\SchoolClassController;
+use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\RoomController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +20,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('main');
 });
+
+Route::resource('schoolterms', SchoolTermController::class);
+
+Route::get('/schoolclasses/search', [SchoolClassController::class, 'search'])->name('schoolclasses.search');
+Route::patch('/schoolclasses/import', [SchoolClassController::class, 'import'])->name('schoolclasses.import');
+Route::resource('schoolclasses', SchoolClassController::class);
+
+Route::resource('instructors', InstructorController::class);
+
+Route::resource('rooms', RoomController::class);

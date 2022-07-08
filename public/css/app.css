@@ -1,0 +1,62 @@
+  td,th{
+    text-align: center;
+  }
+
+  .custom-form-group {
+    margin-bottom: 1em;
+  }
+  
+  .custom-form-group label {
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .custom-form-group .custom-form-control {
+    background: white;
+    border: 1px solid #cccccc;
+    border-radius: 0;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    color: #666666;
+    height: 2.25em;
+    padding: 0 0.75em;
+    width: 100%;
+  }
+  
+  .custom-form-group .custom-form-control:focus {
+    border: solid 1px rgba(102, 175, 233, 0.6);
+    box-shadow: 0 0 10px rgba(102, 175, 233, 0.6);
+    outline: none;
+  }
+  
+  .custom-form-group .custom-form-control:disabled {
+    background: #eee;
+  }
+  
+  .custom-form-group textarea.custom-form-control {
+    height: initial;
+  }
+  
+  .custom-form-group input[type=file].custom-form-control {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .ui-datepicker-trigger {
+    background: transparent;
+    border: 0;
+    height: 100%;
+    padding: 0;
+    position: absolute;
+    right: calc(15px + 0.75em);
+  }
+
+  table.ui-datepicker-calendar {border-collapse: separate;}
+  .ui-datepicker-calendar td {border: 1px solid transparent;}
+
+  #ui-datepicker-div {display:none;}
+
+  .ui-datepicker .ui-datepicker-calendar .ui-state-highlight a {
+    background: #743620 none;
+    color: white;
+  }
