@@ -20,8 +20,10 @@ class SchoolTerm extends Model
         return $this->hasMany(SchoolClass::class);
     }
 
-    public static function getCurrentSchoolTerm()
+    public static function getLatest()
     {
-        return SchoolTerm::where(['year'=>date("Y"),'period'=>(date("m")<=7 ? "1° Semestre" : "2° Semestre")])->first();
+        $year = SchoolTerm::max("year");
+        $period = SchoolTerm::where("year",$year)->max("period");
+        return SchoolTerm::where(["year"=>$year,"period"=>$period])->first();
     } 
 }

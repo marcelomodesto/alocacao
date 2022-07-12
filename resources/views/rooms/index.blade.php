@@ -24,12 +24,21 @@
                         <tr>
                             <th>Nome</th>
                             <th>Assentos</th>
+                            <th></th>
                         </tr>
 
                         @foreach($salas as $sala)
                             <tr>
                                 <td style="white-space: nowrap;">{{ $sala->nome }}</td>
                                 <td>{{ $sala->assentos }}</td>
+                                <td class="text-center" style="white-space: nowrap;">
+                                    <a  class="btn btn-outline-dark btn-sm"
+                                        data-toggle="tooltip" data-placement="top"
+                                        title="Ver Sala"
+                                        href="{{ route('rooms.show', $sala) }}"
+                                    >Ver Sala
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                     </table>

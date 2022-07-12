@@ -26,7 +26,7 @@ class SchoolClassController extends Controller
         if(isset($validated['periodoId'])){
             $schoolterm = SchoolTerm::find($validated['periodoId']);
         }else{
-            $schoolterm = SchoolTerm::getCurrentSchoolTerm();
+            $schoolterm = SchoolTerm::getLatest();
         }
 
         $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->get() : [];
@@ -168,24 +168,30 @@ class SchoolClassController extends Controller
         $turmas = SchoolClass::getFromReplicadoBySchoolTerm($schoolTerm);
 
         foreach($turmas as $turma){
-            $schoolclass = SchoolClass::where(array_intersect_key($turma, array_flip(array('codtur', 'coddis'))))->first();
-
-            if(!$schoolclass){
-                $schoolclass = new SchoolClass;
-                $schoolclass->fill($turma);
-                $schoolclass->save();
-        
-                foreach($turma['instructors'] as $instructor){
-                    $schoolclass->instructors()->attach(Instructor::firstOrCreate(Instructor::getFromReplicadoByCodpes($instructor["codpes"])));
-                }
+            if (($turma['tiptur'] == "Pós Graduação") or 
+                ($turma['tiptur'] == "Graduação" and substr($turma["codtur"], -2, 2) >= "40") or
+                ($turma['tiptur'] == "Graduação" and $turma["coddis"] == "MAE0116")){
+                $schoolclass = SchoolClass::where(array_intersect_key($turma, array_flip(array('codtur', 'coddis'))))->first();
     
-                foreach($turma['class_schedules'] as $classSchedule){
-                    $schoolclass->classschedules()->attach(ClassSchedule::firstOrCreate($classSchedule));
+                if(!$schoolclass){
+                    $schoolclass = new SchoolClass;
+                    $schoolclass->fill($turma);
+                    $schoolclass->save();
+            
+                    foreach($turma['instructors'] as $instructor){
+                        if($instructor){
+                            $schoolclass->instructors()->attach(Instructor::firstOrCreate(Instructor::getFromReplicadoByCodpes($instructor["codpes"])));
+                        }
+                    }
+        
+                    foreach($turma['class_schedules'] as $classSchedule){
+                        $schoolclass->classschedules()->attach(ClassSchedule::firstOrCreate($classSchedule));
+                    }
+                    $schoolclass->save();
                 }
-                $schoolclass->save();
             }
         }
-        
+
         return redirect('/schoolclasses');
     }
 }
