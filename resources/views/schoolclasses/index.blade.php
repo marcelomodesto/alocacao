@@ -15,46 +15,21 @@
             <div id="progressbar-div">
             </div>
             <br>
-            @include('schoolclasses.modals.chooseSchoolTerm')
-            @include('schoolclasses.modals.import')
-            @include('schoolclasses.modals.addSchoolClass')
             <p class="text-right">
-                <a  id="btn-addModal"
-                    class="btn btn-primary"
-                    data-toggle="modal"
-                    data-target="#addSchoolClassModal"
+                <a  class="btn btn-primary"
                     title="Cadastrar" 
+                    href="{{ route('schoolclasses.create') }}"
                 >
                     <i class="fas fa-plus-circle"></i>
                     Cadastrar
                 </a>
-
-                <a  id="btn-chooseSchoolTermModal"
-                    class="btn btn-primary"
-                    data-toggle="modal"
-                    data-target="#chooseSchoolTermModal"
-                    title="Escolher Semestre" 
-                >
-                    Escolher Semestre
-                </a>
                 
-                <a  id="btn-importModal"
-                    class="btn btn-primary"
-                    data-toggle="modal"
-                    data-target="#importSchoolClassModal"
+                <a  class="btn btn-primary"
                     title="Importar" 
+                    href="{{ route('schoolclasses.import') }}"
                 >
                     <i class="fas fa-file-upload"></i>
                     Importar do Jupiter
-                </a>
-                
-                <a  id="btn-searchModal" 
-                    class="btn btn-primary" 
-                    data-toggle="modal" 
-                    data-target="#schoolclassesSearchModal"
-                >
-                    <i class="fas fa-search"></i>
-                    Buscar
                 </a>
                     
             </p>

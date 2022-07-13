@@ -9,17 +9,25 @@
         <div class="col-md-12">
             <h1 class='text-center mb-5'>Salas</h1>
 
-            <p class="text-right">
-                <a class="btn btn-primary" href="{{ route('rooms.create') }}">
-                    <i class="fas fa-plus-circle"></i>
-                    Cadastrar Sala
-                </a>
-            </p>
-
-
             @if (count($salas) > 0)
                 <div class="d-flex justify-content-center">
                     <div class="col-md-6">
+
+                    <form id="distributesSchoolClassesForm" action="{{ route('rooms.distributes') }}" method="POST"
+                        enctype="multipart/form-data"
+                        >
+                        <p class="text-right">
+
+                            @method('patch')
+                            @csrf
+                            <button  class="btn btn-primary"
+                                type="submit"
+                                href="{{ route('rooms.distributes') }}"
+                            >
+                                Distribuir Turmas
+                            </button>
+                        </p>
+                    </form>
                     <table class="table table-bordered table-striped table-hover" style="font-size:15px;">
                         <tr>
                             <th>Nome</th>

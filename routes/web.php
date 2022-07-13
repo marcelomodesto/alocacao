@@ -24,9 +24,11 @@ Route::get('/', function () {
 Route::resource('schoolterms', SchoolTermController::class);
 
 Route::get('/schoolclasses/search', [SchoolClassController::class, 'search'])->name('schoolclasses.search');
-Route::patch('/schoolclasses/import', [SchoolClassController::class, 'import'])->name('schoolclasses.import');
+Route::get('/schoolclasses/import', [SchoolClassController::class, 'import'])->name('schoolclasses.import');
 Route::resource('schoolclasses', SchoolClassController::class);
 
 Route::resource('instructors', InstructorController::class);
 
+Route::patch('/rooms/distributes', [RoomController::class, 'distributes'])->name('rooms.distributes');
+Route::get('/rooms/dissociate/{schoolclass}', [RoomController::class, 'dissociate'])->name('rooms.dissociate');
 Route::resource('rooms', RoomController::class);

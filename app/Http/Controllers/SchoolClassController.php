@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSchoolClassRequest;
 use App\Http\Requests\UpdateSchoolClassRequest;
 use App\Http\Requests\IndexSchoolClassRequest;
-use App\Http\Requests\ImportSchoolClassRequest;
 use App\Http\Requests\CreateSchoolClassRequest;
 use App\Models\SchoolClass;
 use App\Models\SchoolTerm;
 use App\Models\Instructor;
 use App\Models\ClassSchedule;
+use App\Models\Priority;
+use App\Models\Room;
 
 class SchoolClassController extends Controller
 {
@@ -39,12 +40,10 @@ class SchoolClassController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(CreateSchoolClassRequest $request)
+    public function create()
     {
-        $validated = $request->validated();
-
         $turma = new SchoolClass;
-        $schoolTerm = SchoolTerm::find($validated["periodoId"]);
+        $schoolTerm = SchoolTerm::getLatest();
         $turma->schoolterm()->associate($schoolTerm);
 
         return view('schoolclasses.create', compact('turma'));
@@ -160,12 +159,11 @@ class SchoolClassController extends Controller
         return redirect('/schoolclasses');
     }
 
-    public function import(ImportSchoolClassRequest $request)
+    public function import()
     {
-        $validated = $request->validated();
-        $schoolTerm = SchoolTerm::find($validated["periodoId"]);
+        $schoolterm = SchoolTerm::getLatest();
 
-        $turmas = SchoolClass::getFromReplicadoBySchoolTerm($schoolTerm);
+        $turmas = SchoolClass::getFromReplicadoBySchoolTerm($schoolterm);
 
         foreach($turmas as $turma){
             if (($turma['tiptur'] == "Pós Graduação") or 
@@ -187,6 +185,21 @@ class SchoolClassController extends Controller
                     foreach($turma['class_schedules'] as $classSchedule){
                         $schoolclass->classschedules()->attach(ClassSchedule::firstOrCreate($classSchedule));
                     }
+
+                    $priorities = Priority::$priorities_by_course;
+
+                    if(in_array($schoolclass->coddis,array_keys($priorities))){
+                        foreach($priorities[$schoolclass->coddis] as $room_name=>$priority){
+                            $room = Room::where("nome", $room_name)->first();
+                            if($room){
+                                Priority::updateOrCreate(
+                                    ["room_id"=>$room->id,"school_class_id"=>$schoolclass->id],
+                                    ["priority"=>$priority]
+                                );
+                            }
+                        }
+                    }
+                    
                     $schoolclass->save();
                 }
             }

@@ -64,7 +64,18 @@
                                                         nowrap;vertical-align: 
                                                         middle;background-color:{{$cores[$turma->id]}};" 
                                                     rowspan={{array_search($classschedule->horsai, $horarios) - array_search($classschedule->horent, $horarios)}}>
-                                                    {{ $turma->coddis." T.".substr($turma->codtur, -2, 2) }}
+                                                    {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}
+
+                                                    <a class="text-dark text-decoration-none"
+                                                        title="Remover"
+                                                        data-method="delete"
+                                                        href="{{ route(
+                                                            'rooms.dissociate',
+                                                            $turma
+                                                        ) }}"
+                                                    >
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
                                                 </td>
                                             @endif
                                         @else
@@ -77,7 +88,7 @@
                 </div>
                 </div>
             @else
-                <p class="text-center">Não há turmas nessa sala no semestre {{$st->period}}-{{$st->year}}</p>
+                <p class="text-center">Não há turmas nessa sala no {{$st->period}}-{{$st->year}}</p>
             @endif
         </div>
     </div>

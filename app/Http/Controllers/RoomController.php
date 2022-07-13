@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Room;
 use Illuminate\Http\Request;
+use App\Models\Room;
+use App\Models\SchoolTerm;
+use App\Models\Priority;
+use App\Models\SchoolClass;
 
 class RoomController extends Controller
 {
@@ -83,5 +86,44 @@ class RoomController extends Controller
     public function destroy(Room $room)
     {
         //
+    }
+
+    public function dissociate(SchoolClass $schoolclass)
+    {
+        $schoolclass->room()->dissociate();
+        $schoolclass->save();
+
+        return back();
+    }
+
+    public function distributes()
+    {
+        $schoolterm = SchoolTerm::getLatest();
+
+        foreach(SchoolClass::whereBelongsTo($schoolterm)->get() as $schoolclass){
+            $schoolclass->room()->dissociate();
+            $schoolclass->save();
+        }
+
+        $prioridades = Priority::whereHas("schoolclass", function($query) use($schoolterm) {$query->whereBelongsTo($schoolterm);})
+                                ->get()->sortByDesc("priority");
+
+        foreach($prioridades as $prioridade){
+            if(!$prioridade->schoolclass->room()->exists() and
+                (($prioridade->schoolclass->tiptur=="Graduação" and $prioridade->room->nome[0]=="B") or 
+                ($prioridade->schoolclass->tiptur=="Pós Graduação" and $prioridade->room->nome[0]=="A"))){
+                $conflito = false;
+                foreach($prioridade->room->schoolclasses as $turma){
+                    if($prioridade->schoolclass->isInConflict($turma)){
+                        $conflito = true;
+                    }
+                }
+                if(!$conflito){
+                    $prioridade->room->schoolclasses()->save($prioridade->schoolclass);
+                }
+            }
+        }
+
+        return redirect("/rooms");
     }
 }

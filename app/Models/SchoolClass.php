@@ -77,10 +77,10 @@ class SchoolClass extends Model
         return $this->hasMany(Priority::class);
     }
 
-    public static function isInConflict($turma1, $turma2)
+    public function isInConflict($turma)
     {
-        foreach($turma1->classschedules as $cs1){
-            foreach($turma2->classschedules as $cs2){
+        foreach($this->classschedules as $cs1){
+            foreach($turma->classschedules as $cs2){
                 if($cs1->diasmnocp == $cs2->diasmnocp){
                     if(!($cs1->horsai <= $cs2->horent or $cs1->horent >= $cs2->horsai)){
                         return true;
