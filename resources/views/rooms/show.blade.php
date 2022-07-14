@@ -57,6 +57,8 @@
                                         @if($turma)
                                             @php
                                                 $classschedule = $turma->classschedules()->where('diasmnocp', $dia)->where('horent', $horarios[$x])->first();
+                                                $excesao = $turma->classschedules()->where('diasmnocp', $dia)->where('horsai', $horarios[$x+1])->first();
+                                                $excesao2 = $turma->classschedules()->where('diasmnocp', $dia)->where('horent',"<", $horarios[$x])->where('horsai',">", $horarios[$x+1])->first();
                                             @endphp
                                             @if($classschedule)
                                                 @php $i+=1; @endphp
@@ -67,14 +69,24 @@
                                                     @if($turma->fusion()->exists())
                                                         @php
                                                             $dobradinha = "";
-                                                            foreach(range(0, count($turma->fusion->schoolclasses)-1) as $x){
-                                                                $dobradinha .= $turma->fusion->schoolclasses[$x]->coddis;
-                                                                $dobradinha .= $x != count($turma->fusion->schoolclasses)-1 ? "/" : "";
+                                                            foreach(range(0, count($turma->fusion->schoolclasses)-1) as $y){
+                                                                $dobradinha .= $turma->fusion->schoolclasses[$y]->coddis;
+                                                                $dobradinha .= $y != count($turma->fusion->schoolclasses)-1 ? "/" : "";
                                                             }
                                                         @endphp
-                                                        {{$dobradinha}}  
+                                                        <a class="text-dark" target="_blank"
+                                                            href="{{'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis}}"
+                                                        >
+                                                            {{$dobradinha}}
+                                                        </a>
+                                                                                                                  
                                                     @else
-                                                        {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}
+                                                        <a class="text-dark" target="_blank"
+                                                            href="{{'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis}}"
+                                                        >
+                                                            {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}
+                                                        </a>
+                                                        
                                                     @endif
                                                     <a class="text-dark text-decoration-none"
                                                         title="Remover"
@@ -87,6 +99,8 @@
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
                                                 </td>
+                                            @elseif(!$excesao and !$excesao2)
+                                                <td></td>    
                                             @endif
                                         @else
                                             <td></td>                                                    
