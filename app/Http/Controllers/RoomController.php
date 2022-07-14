@@ -109,21 +109,36 @@ class RoomController extends Controller
                                 ->get()->sortByDesc("priority");
 
         foreach($prioridades as $prioridade){
-            if(!$prioridade->schoolclass->room()->exists() and
-                (($prioridade->schoolclass->tiptur=="Graduação" and $prioridade->room->nome[0]=="B") or 
-                ($prioridade->schoolclass->tiptur=="Pós Graduação" and $prioridade->room->nome[0]=="A"))){
-                $conflito = false;
-                foreach($prioridade->room->schoolclasses as $turma){
-                    if($prioridade->schoolclass->isInConflict($turma)){
-                        $conflito = true;
+            $t1 = $prioridade->schoolclass;
+            $room = $prioridade->room;
+            if(!$t1->room()->exists()){
+                if($t1->fusion()->exists()){
+                    if($t1->fusion->master->id == $t1->id and $room->nome[0]=="B"){
+                        if($room->isCompatible($t1)){
+                            $room->schoolclasses()->save($t1);
+                        }                        
                     }
-                }
-                if(!$conflito){
-                    $prioridade->room->schoolclasses()->save($prioridade->schoolclass);
+                }elseif(($t1->tiptur=="Graduação" and $room->nome[0]=="B") or 
+                        ($t1->tiptur=="Pós Graduação" and $room->nome[0]=="A")){
+                    if($room->isCompatible($t1)){
+                        $room->schoolclasses()->save($t1);
+                    }
                 }
             }
         }
 
+        $turmas = SchoolClass::where("tiptur","Pós Graduação")->whereDoesntHave("room")->get();
+        foreach($turmas as $t1){
+            foreach(Room::all()->shuffle() as $sala){
+                if(!$t1->room()->exists() and !$t1->fusion()->exists()){
+                    if($t1->tiptur=="Pós Graduação" and $sala->nome[0]=="A"){
+                        if($sala->isCompatible($t1)){
+                            $sala->schoolclasses()->save($t1);
+                        }
+                    }
+                }
+            }
+        }
         return redirect("/rooms");
     }
 }

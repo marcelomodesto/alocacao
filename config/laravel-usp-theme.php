@@ -14,6 +14,10 @@ $submenu = [
         'url' => config('app.url') . '/schoolclasses',
     ],
     [
+        'text' => 'Dobradinhas',
+        'url' => config('app.url') . '/fusions',
+    ],
+    [
         'text' => 'Salas',
         'url' => config('app.url') . '/rooms',
     ],

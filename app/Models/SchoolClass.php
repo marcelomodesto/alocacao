@@ -8,6 +8,7 @@ use App\Models\Instructor;
 use App\Models\ClassSchedule;
 use App\Models\Room;
 use App\Models\Priority;
+use App\Models\Fusion;
 use Uspdev\Replicado\DB;
 use Carbon\Carbon;
 
@@ -24,7 +25,8 @@ class SchoolClass extends Model
         'dtainitur',
         'dtafimtur',
         'school_term_id',
-        'room_id'
+        'room_id',
+        'fusion_id',
     ];
 
     protected $casts = [
@@ -77,6 +79,11 @@ class SchoolClass extends Model
         return $this->hasMany(Priority::class);
     }
 
+    public function fusion()
+    {
+        return $this->belongsTo(Fusion::class, "fusion_id");
+    }
+
     public function isInConflict($turma)
     {
         foreach($this->classschedules as $cs1){
@@ -89,48 +96,6 @@ class SchoolClass extends Model
             }
         }
         return false;
-    }
-
-    public static function distribuiTurmasNasSalas(SchoolTerm $schoolterm)
-    {   
-        $prioridades = Priority::whereHas("schoolclass", function($query) use($schoolterm) {$query->whereBelongsTo($schoolterm);})
-                                ->get()->sortByDesc("priority");
-        foreach($prioridades as $prioridade){
-            if(!$prioridade->schoolclass->room()->exists()){
-                $conflito = false;
-                foreach($prioridade->room->schoolclasses as $turma){
-                    if(SELF::isInConflict($prioridade->schoolclass,$turma)){
-                        $conflito = true;
-                    }
-                }
-                if(!$conflito){
-                    $prioridade->room->schoolclasses()->save($prioridade->schoolclass);
-                }
-            }
-        }
-
-        $turmas = SchoolClass::whereBelongsTo($schoolterm)->get();
-
-        foreach($turmas as $t1){
-            foreach(Room::all()->shuffle() as $sala){
-                if(!$t1->room()->exists()){
-                    if(($t1->tiptur=="Graduação" and $sala->nome[0]=="B") or 
-                        ($t1->tiptur=="Pós Graduação" and $sala->nome[0]=="A")){
-                        $conflito = false;
-
-                        foreach($sala->schoolclasses as $t2){
-                            if(SELF::isInConflict($t1,$t2)){
-                                $conflito = true;
-                            }
-                        }
-
-                        if(!$conflito){
-                            $sala->schoolclasses()->save($t1);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     public static function getGrdDisciplinesFromReplicadoByInstitute($sglund){

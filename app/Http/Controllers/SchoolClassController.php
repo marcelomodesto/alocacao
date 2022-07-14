@@ -11,6 +11,7 @@ use App\Models\SchoolTerm;
 use App\Models\Instructor;
 use App\Models\ClassSchedule;
 use App\Models\Priority;
+use App\Models\Fusion;
 use App\Models\Room;
 
 class SchoolClassController extends Controller
@@ -202,6 +203,51 @@ class SchoolClassController extends Controller
                     
                     $schoolclass->save();
                 }
+            }
+        }
+
+        $docentes = Instructor::whereHas("schoolclasses", function ($query) use($schoolterm){
+                                    $query->whereBelongsTo($schoolterm);
+                                })->withCount("schoolclasses")->having("schoolclasses_count",">",1)->get();
+
+        $conflicts = [];
+        
+        foreach($docentes as $docente){
+            $done = [];
+            foreach($docente->schoolclasses as $t1){
+                $conflicts[$t1->id] = [];
+                foreach($docente->schoolclasses()->whereNotIn("id", $done)->get() as $t2){
+                    if($t1->isInConflict($t2) and $t1->coddis != $t2->coddis and 
+                            !str_contains($t1->coddis,"MAP20") and $t1->coddis!="MAE0116"){
+                        array_push($conflicts[$t1->id], $t2->id);
+                    }
+                }
+                array_push($done, $t1->id);
+                if(!$conflicts[$t1->id]){
+                    unset($conflicts[$t1->id]);
+                }
+            }
+        }
+
+        foreach($conflicts as $key=>$value){
+            foreach($value as $id){
+                if(in_array($id, array_keys($conflicts))){
+                    unset($conflicts[$id]);
+                }
+            }
+        }
+
+        foreach($conflicts as $key=>$value){
+            $t1 = SchoolClass::find($key); 
+            $fusion = new Fusion; 
+            $fusion->master()->associate($t1); 
+            $fusion->save(); 
+            $t1->fusion()->associate($fusion); 
+            $t1->save();  
+            foreach($value as $id){
+                $t2 = SchoolClass::find($id); 
+                $t2->fusion()->associate($fusion); 
+                $t2->save();
             }
         }
 

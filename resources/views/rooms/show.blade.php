@@ -60,12 +60,22 @@
                                             @endphp
                                             @if($classschedule)
                                                 @php $i+=1; @endphp
-                                                <td style="white-space: 
-                                                        nowrap;vertical-align: 
-                                                        middle;background-color:{{$cores[$turma->id]}};" 
+                                                <td style="white-space: nowrap;
+                                                        vertical-align: middle;
+                                                        background-color:{{$cores[$turma->id]}};" 
                                                     rowspan={{array_search($classschedule->horsai, $horarios) - array_search($classschedule->horent, $horarios)}}>
-                                                    {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}
-
+                                                    @if($turma->fusion()->exists())
+                                                        @php
+                                                            $dobradinha = "";
+                                                            foreach(range(0, count($turma->fusion->schoolclasses)-1) as $x){
+                                                                $dobradinha .= $turma->fusion->schoolclasses[$x]->coddis;
+                                                                $dobradinha .= $x != count($turma->fusion->schoolclasses)-1 ? "/" : "";
+                                                            }
+                                                        @endphp
+                                                        {{$dobradinha}}  
+                                                    @else
+                                                        {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}
+                                                    @endif
                                                     <a class="text-dark text-decoration-none"
                                                         title="Remover"
                                                         data-method="delete"

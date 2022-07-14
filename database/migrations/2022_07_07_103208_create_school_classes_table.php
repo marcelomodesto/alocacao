@@ -22,8 +22,9 @@ class CreateSchoolClassesTable extends Migration
             $table->string('nomdis')->nullable();
             $table->timestamp('dtainitur')->nullable();
             $table->timestamp('dtafimtur')->nullable();
-            $table->unsignedBigInteger('school_term_id')->unsigned();
-            $table->unsignedBigInteger('room_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('school_term_id');
+            $table->unsignedBigInteger('room_id')->nullable();
+            $table->unsignedBigInteger('fusion_id')->nullable();
             $table->unique(['codtur', 'coddis']);
             $table->foreign('school_term_id')->references('id')->on('school_terms')->onDelete('cascade');
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');

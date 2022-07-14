@@ -26,4 +26,14 @@ class Room extends Model
     {
         return $this->hasMany(Priority::class);
     }
+
+    public function isCompatible(SchoolClass $t1)
+    {
+        foreach($this->schoolclasses as $t2){
+            if($t1->isInConflict($t2)){
+                return false;
+            }
+        }
+        return true;
+    }
 }

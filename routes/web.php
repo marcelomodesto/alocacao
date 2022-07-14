@@ -5,6 +5,7 @@ use App\Http\Controllers\SchoolTermController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\FusionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,3 +33,5 @@ Route::resource('instructors', InstructorController::class);
 Route::patch('/rooms/distributes', [RoomController::class, 'distributes'])->name('rooms.distributes');
 Route::get('/rooms/dissociate/{schoolclass}', [RoomController::class, 'dissociate'])->name('rooms.dissociate');
 Route::resource('rooms', RoomController::class);
+
+Route::resource('fusions', FusionController::class);
