@@ -113,13 +113,12 @@ class RoomController extends Controller
             $room = $prioridade->room;
             if(!$t1->room()->exists()){
                 if($t1->fusion()->exists()){
-                    if($t1->fusion->master->id == $t1->id and $room->nome[0]=="B"){
+                    if($t1->fusion->master->id == $t1->id){
                         if($room->isCompatible($t1)){
                             $room->schoolclasses()->save($t1);
                         }                        
                     }
-                }elseif(($t1->tiptur=="Graduação" and $room->nome[0]=="B") or 
-                        ($t1->tiptur=="Pós Graduação" and $room->nome[0]=="A")){
+                }else{
                     if($room->isCompatible($t1)){
                         $room->schoolclasses()->save($t1);
                     }
@@ -127,18 +126,40 @@ class RoomController extends Controller
             }
         }
 
-        $turmas = SchoolClass::where("tiptur","Pós Graduação")->whereDoesntHave("room")->get();
+        $turmas = SchoolClass::whereBelongsTo($schoolterm)
+                                ->where("tiptur","Pós Graduação")
+                                ->whereDoesntHave("room")->get();
         foreach($turmas as $t1){
             foreach(Room::all()->shuffle() as $sala){
                 if(!$t1->room()->exists() and !$t1->fusion()->exists()){
-                    if($t1->tiptur=="Pós Graduação" and $sala->nome[0]=="A"){
-                        if($sala->isCompatible($t1)){
-                            $sala->schoolclasses()->save($t1);
-                        }
+                    if($sala->isCompatible($t1)){
+                        $sala->schoolclasses()->save($t1);
                     }
                 }
             }
         }
+
+        $turmas = SchoolClass::whereBelongsTo($schoolterm)
+                                ->where("tiptur","Graduação")
+                                ->where("estmtr","!=", null)
+                                ->whereDoesntHave("room")
+                                ->get()->sortBy("estmtr");
+        foreach($turmas as $t1){
+            foreach(Room::all()->sortby("assentos") as $sala){
+                if(!$t1->room()->exists()){
+                    if($t1->fusion()->exists()){
+                        if($t1->fusion->master->id == $t1->id){
+                            if($sala->isCompatible($t1)){
+                                $sala->schoolclasses()->save($t1);
+                            }                        
+                        }
+                    }elseif($sala->isCompatible($t1)){
+                        $sala->schoolclasses()->save($t1);
+                    }
+                }
+            }
+        }
+
         return redirect("/rooms");
     }
 }

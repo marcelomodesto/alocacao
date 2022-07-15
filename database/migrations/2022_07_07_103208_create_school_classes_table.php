@@ -20,6 +20,7 @@ class CreateSchoolClassesTable extends Migration
             $table->string('coddis');
             $table->string('tiptur')->nullable();
             $table->string('nomdis')->nullable();
+            $table->integer('estmtr')->unsigned()->nullable();
             $table->timestamp('dtainitur')->nullable();
             $table->timestamp('dtafimtur')->nullable();
             $table->unsignedBigInteger('school_term_id');

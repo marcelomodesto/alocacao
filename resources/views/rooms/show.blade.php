@@ -9,6 +9,8 @@
         <div class="col-md-12">
             <h1 class='text-center mb-5'>Sala {{$room->nome}}</h1>
 
+            <h3 class='text-center mb-5'>Assentos {{$room->assentos}}</h3>
+
             @php
                 $st = App\Models\SchoolTerm::getLatest();
                 $horarios = [];
@@ -27,8 +29,17 @@
                 }
                 $horarios = array_unique($horarios);
                 sort($horarios, SORT_REGULAR);      
-                $dias = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab'];         
+                $dias = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab'];  
+
+                $compativeis = 0;
+                foreach(App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->where("estmtr","!=", null)->whereDoesntHave("fusion")->get() as $t){
+                    if($room->isCompatible($t)){
+                        $compativeis += 1;
+                    }
+                }
             @endphp
+
+            <h3 class='text-center mb-5'>Turmas não alocadas compativeis {{$compativeis}}</h3>
 
             @if (count($room->schoolclasses()->whereBelongsTo($st)->get()) > 0)
                 <div class="d-flex justify-content-center">
@@ -84,7 +95,7 @@
                                                         <a class="text-dark" target="_blank"
                                                             href="{{'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis}}"
                                                         >
-                                                            {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}
+                                                            {{ $turma->coddis.($turma->tiptur=="Graduação" ? " ".$turma->estmtr." T.".substr($turma->codtur, -2, 2) : "") }}
                                                         </a>
                                                         
                                                     @endif

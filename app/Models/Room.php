@@ -33,6 +33,15 @@ class Room extends Model
             if($t1->isInConflict($t2)){
                 return false;
             }
+            if($t1->estmtr){
+                if($this->assentos < $t1->estmtr){
+                    return false;
+                }
+            }
+            if(($t1->tiptur=="Graduação" and $this->nome[0]=="A") or 
+                ($t1->tiptur=="Pós Graduação" and $this->nome[0]=="B")){
+                return false;
+            }
         }
         return true;
     }

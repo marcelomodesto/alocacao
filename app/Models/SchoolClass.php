@@ -22,6 +22,7 @@ class SchoolClass extends Model
         'tiptur',
         'nomdis',
         'coddis',
+        'estmtr',
         'dtainitur',
         'dtafimtur',
         'school_term_id',
@@ -113,6 +114,40 @@ class SchoolClass extends Model
 
     }
 
+    public function calcEstimadedEnrollment()
+    {
+        $query = " SELECT T.coddis, T.codtur, (T.nummtr+T.nummtrturcpl+T.nummtropt+T.nummtrecr+T.nummtroptlre) AS TOTALMATRICULADOS";
+        $query .= " FROM TURMAGR AS T, DISCIPLINAGR AS D, DISCIPGRCODIGO AS DC";
+        $query .= " WHERE (T.coddis = :coddis)";
+        $query .= " AND T.codtur LIKE :codtur";
+        $query .= " AND T.verdis = (SELECT MAX(T.verdis) 
+                                    FROM TURMAGR AS T 
+                                    WHERE T.coddis = :coddis)";
+        $query .= " AND D.coddis = T.coddis";
+        $query .= " AND D.verdis = T.verdis";
+        $query .= " AND DC.coddis = T.coddis";
+        $param = [
+            'coddis' => $this->coddis,
+            'codtur' => "20%".substr($this->codtur, -3, 3),
+        ];
+
+        $res = DB::fetchAll($query, $param);
+
+        $rmv = [];
+
+        foreach($res as $key=>$value){
+            if($value["TOTALMATRICULADOS"]==0){
+                array_push($rmv, $key);
+            }
+        }
+
+        foreach($rmv as $i){
+            unset($res[$i]);
+        }
+
+        $this->estmtr = count($res)>0 ? array_sum(array_column($res, "TOTALMATRICULADOS"))/count($res) : null;
+    }
+
     public static function getFromReplicadoBySchoolTerm(SchoolTerm $schoolTerm)
     {
         $disciplinas = SELF::getGrdDisciplinesFromReplicadoByInstitute(env("UNIDADE"));
@@ -146,13 +181,13 @@ class SchoolClass extends Model
             $turmas = DB::fetchAll($query, $param);
             
             foreach($turmas as $key => $turma){
-                $turmas[$key]['class_schedules'] = ClassSchedule::getFromReplicadoBySchoolClass($turma);
-                $turmas[$key]['instructors'] = Instructor::getFromReplicadoBySchoolClass($turma);
-                $turmas[$key]['school_term_id'] = $schoolTerm->id;
-                $turmas[$key]['dtainitur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtainitur"])->format("d/m/Y");
-                $turmas[$key]['dtafimtur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtafimtur"])->format("d/m/Y");
-                $turmas[$key]['tiptur'] = "Graduação";
-                unset($turmas[$key]['pfxdisval']);
+                    $turmas[$key]['class_schedules'] = ClassSchedule::getFromReplicadoBySchoolClass($turma);
+                    $turmas[$key]['instructors'] = Instructor::getFromReplicadoBySchoolClass($turma);
+                    $turmas[$key]['school_term_id'] = $schoolTerm->id;
+                    $turmas[$key]['dtainitur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtainitur"])->format("d/m/Y");
+                    $turmas[$key]['dtafimtur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtafimtur"])->format("d/m/Y");
+                    $turmas[$key]['tiptur'] = "Graduação";
+                    unset($turmas[$key]['pfxdisval']);
 
             }
             $schoolclasses = array_merge($schoolclasses, $turmas);

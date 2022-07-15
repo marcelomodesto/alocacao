@@ -167,9 +167,10 @@ class SchoolClassController extends Controller
         $turmas = SchoolClass::getFromReplicadoBySchoolTerm($schoolterm);
 
         foreach($turmas as $turma){
-            if (($turma['tiptur'] == "Pós Graduação") or 
+            if ((($turma['tiptur'] == "Pós Graduação") or 
                 ($turma['tiptur'] == "Graduação" and substr($turma["codtur"], -2, 2) >= "40") or
-                ($turma['tiptur'] == "Graduação" and $turma["coddis"] == "MAE0116")){
+                ($turma['tiptur'] == "Graduação" and $turma["coddis"] == "MAE0116")) and
+                (!str_contains($turma['coddis'],"MAP20"))){
                 $schoolclass = SchoolClass::where(array_intersect_key($turma, array_flip(array('codtur', 'coddis'))))->first();
     
                 if(!$schoolclass){
@@ -200,6 +201,8 @@ class SchoolClassController extends Controller
                             }
                         }
                     }
+
+                    $schoolclass->calcEstimadedEnrollment();
                     
                     $schoolclass->save();
                 }
@@ -217,8 +220,7 @@ class SchoolClassController extends Controller
             foreach($docente->schoolclasses as $t1){
                 $conflicts[$t1->id] = [];
                 foreach($docente->schoolclasses()->whereNotIn("id", $done)->get() as $t2){
-                    if($t1->isInConflict($t2) and $t1->coddis != $t2->coddis and 
-                            !str_contains($t1->coddis,"MAP20") and $t1->coddis!="MAE0116"){
+                    if($t1->isInConflict($t2) and $t1->coddis != $t2->coddis and $t1->coddis!="MAE0116"){
                         array_push($conflicts[$t1->id], $t2->id);
                     }
                 }
