@@ -45,6 +45,19 @@
             <h3 class='text-center mb-5'>Total de turmas não alocadas {{$nao_alocadas}}</h3>
             <h3 class='text-center mb-5'>Turmas não alocadas compativeis {{$compativeis}}</h3>
 
+            <p class="text-right">
+                <a  class="btn btn-primary"
+                    id="btn-allocateSchoolClass"
+                    data-toggle="modal"
+                    data-target="#allocateModal"
+                >
+                    <i class="fas fa-plus-circle"></i>
+                    Alocar Turma
+                </a>
+                    
+            </p>
+            @include('rooms.modals.allocate')
+
             @if (count($room->schoolclasses()->whereBelongsTo($st)->get()) > 0)
                 <div class="d-flex justify-content-center">
                     <div class="col-md-12">
@@ -97,10 +110,10 @@
                                                                                                                   
                                                     @else
                                                         @php
-                                                            $title = $turma->estmtr ? "Número estimado de matriculados ".$turma->estmtr : "Não foram encontrados registros anteriores para calcular uma estimativa de matriculados";
+                                                            $label = $turma->estmtr ? "Número estimado de matriculados ".$turma->estmtr : "Não foram encontrados registros anteriores para calcular uma estimativa de matriculados";
                                                         @endphp
                                                         <a class="text-dark" target="_blank"
-                                                            title="{{ $title }}"
+                                                            title="{{ $label }}"
                                                             href="{{'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis}}"
                                                         >
                                                             {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}

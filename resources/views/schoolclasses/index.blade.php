@@ -33,7 +33,6 @@
                 </a>
                     
             </p>
-            @include('schoolclasses.modals.search')
 
             @if (count($turmas) > 0)
                 <table class="table table-bordered table-striped table-hover" style="font-size:12px;">

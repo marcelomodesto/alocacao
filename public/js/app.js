@@ -14,6 +14,25 @@
     function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
     
     $(function () {
+      $('#allocateModal').on('show.bs.modal', function (event) {
+        var room_id = $('#room_id').val();
+        $('#school_class_id').empty();
+        $.ajax({
+          url: baseURL + '/rooms/compatible?room_id=' + room_id,
+          dataType: 'json',
+        success: function success(turmas){
+            var array_turmas = jQuery.parseJSON(turmas);
+            array_turmas.forEach(function (turma){
+              if(turma.tiptur=="Graduação"){
+                $('#school_class_id').append("<option value="+turma.id+">"+turma.coddis+" T."+turma.codtur.slice(-2)+" "+turma.nomdis+"</option>");
+              }else if(turma.tiptur=="Pós Graduação"){
+                $('#school_class_id').append("<option value="+turma.id+">"+turma.coddis+" "+turma.nomdis+"</option>");
+              }
+            });
+          }
+        });
+
+      });
       $('#removalModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var routePath = button.attr('href');

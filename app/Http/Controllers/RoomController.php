@@ -7,6 +7,8 @@ use App\Models\Room;
 use App\Models\SchoolTerm;
 use App\Models\Priority;
 use App\Models\SchoolClass;
+use App\Http\Requests\CompatibleRoomRequest;
+use App\Http\Requests\AllocateRoomRequest;
 
 class RoomController extends Controller
 {
@@ -92,6 +94,39 @@ class RoomController extends Controller
     {
         $schoolclass->room()->dissociate();
         $schoolclass->save();
+
+        return back();
+    }
+
+    public function compatible(CompatibleRoomRequest $request)
+    {
+        $validated = $request->validated();
+
+        $room = Room::find($validated["room_id"]);
+
+        $st = SchoolTerm::getLatest();
+
+        $res = [];
+
+        $turmas = SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")
+                    ->union(SchoolClass::whereExists(function($query){
+                        $query->from("fusions")->whereColumn("fusions.master_id","school_classes.id");
+                    })->whereBelongsTo($st)->whereDoesntHave("room"))->get();
+
+        foreach($turmas as $turma){
+            if($room->isCompatible($turma)){
+                array_push($res, $turma);
+            }
+        }
+
+        return response()->json(json_encode($res));
+    }
+
+    public function allocate(AllocateRoomRequest $request, Room $room)
+    {
+        $validated = $request->validated();
+
+        $room->schoolclasses()->save(SchoolClass::find($validated["school_class_id"]));
 
         return back();
     }
