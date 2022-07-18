@@ -48,7 +48,7 @@ class ClassSchedule extends Model
             'numofe' => $schoolclass['numofe'],
         ];
         
-        $days = ['2SG'=>'seg', '3TR'=>'ter', '4QA'=>'qua', '5QI'=>'qui', '6SX'=>'sex'];
+        $days = ['1DM'=>'dom', '2SG'=>'seg', '3TR'=>'ter', '4QA'=>'qua', '5QI'=>'qui', '6SX'=>'sex'];
         $res = DB::fetchAll($query, $param);
 
         foreach($res as $key => $cs){
