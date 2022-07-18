@@ -29,16 +29,20 @@
                 }
                 $horarios = array_unique($horarios);
                 sort($horarios, SORT_REGULAR);      
-                $dias = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab'];  
+                $dias = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];  
 
                 $compativeis = 0;
-                foreach(App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->where("estmtr","!=", null)->whereDoesntHave("fusion")->get() as $t){
+                foreach(App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")->get() as $t){
                     if($room->isCompatible($t)){
                         $compativeis += 1;
                     }
                 }
+
+                $nao_alocadas = App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")->get()->count();
+                $nao_alocadas += App\Models\SchoolClass::whereExists(function($query){$query->from("fusions")->whereColumn("fusions.master_id","school_classes.id");})->whereDoesntHave("room")->get()->count();
             @endphp
 
+            <h3 class='text-center mb-5'>Total de turmas não alocadas {{$nao_alocadas}}</h3>
             <h3 class='text-center mb-5'>Turmas não alocadas compativeis {{$compativeis}}</h3>
 
             @if (count($room->schoolclasses()->whereBelongsTo($st)->get()) > 0)
@@ -92,10 +96,14 @@
                                                         </a>
                                                                                                                   
                                                     @else
+                                                        @php
+                                                            $title = $turma->estmtr ? "Número estimado de matriculados ".$turma->estmtr : "Não foram encontrados registros anteriores para calcular uma estimativa de matriculados";
+                                                        @endphp
                                                         <a class="text-dark" target="_blank"
+                                                            title="{{ $title }}"
                                                             href="{{'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis}}"
                                                         >
-                                                            {{ $turma->coddis.($turma->tiptur=="Graduação" ? " ".$turma->estmtr." T.".substr($turma->codtur, -2, 2) : "") }}
+                                                            {{ $turma->coddis.($turma->tiptur=="Graduação" ? " T.".substr($turma->codtur, -2, 2) : "") }}
                                                         </a>
                                                         
                                                     @endif

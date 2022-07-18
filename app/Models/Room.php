@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\SchooClass;
 use App\Models\Priority;
+use Illuminate\Support\Facades\DB;
 
 class Room extends Model
 {
@@ -29,17 +30,17 @@ class Room extends Model
 
     public function isCompatible(SchoolClass $t1)
     {
-        foreach($this->schoolclasses as $t2){
-            if($t1->isInConflict($t2)){
+        if($t1->estmtr){
+            if($this->assentos < $t1->estmtr*1.2){
                 return false;
             }
-            if($t1->estmtr){
-                if($this->assentos < $t1->estmtr){
-                    return false;
-                }
-            }
-            if(($t1->tiptur=="Graduação" and $this->nome[0]=="A") or 
-                ($t1->tiptur=="Pós Graduação" and $this->nome[0]=="B")){
+        }
+        if(($t1->tiptur=="Graduação" and $this->nome[0]=="A") or 
+            ($t1->tiptur=="Pós Graduação" and $this->nome[0]=="B")){
+            return false;
+        }
+        foreach($this->schoolclasses as $t2){
+            if($t1->isInConflict($t2)){
                 return false;
             }
         }

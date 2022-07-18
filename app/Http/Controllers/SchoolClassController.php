@@ -170,7 +170,7 @@ class SchoolClassController extends Controller
             if ((($turma['tiptur'] == "Pós Graduação") or 
                 ($turma['tiptur'] == "Graduação" and substr($turma["codtur"], -2, 2) >= "40") or
                 ($turma['tiptur'] == "Graduação" and $turma["coddis"] == "MAE0116")) and
-                (!str_contains($turma['coddis'],"MAP20"))){
+                ($turma["nomdis"] != "Trabalho de Formatura")){
                 $schoolclass = SchoolClass::where(array_intersect_key($turma, array_flip(array('codtur', 'coddis'))))->first();
     
                 if(!$schoolclass){
@@ -191,13 +191,19 @@ class SchoolClassController extends Controller
                     $priorities = Priority::$priorities_by_course;
 
                     if(in_array($schoolclass->coddis,array_keys($priorities))){
-                        foreach($priorities[$schoolclass->coddis] as $room_name=>$priority){
-                            $room = Room::where("nome", $room_name)->first();
-                            if($room){
-                                Priority::updateOrCreate(
-                                    ["room_id"=>$room->id,"school_class_id"=>$schoolclass->id],
-                                    ["priority"=>$priority]
-                                );
+                        foreach($priorities[$schoolclass->coddis] as $codtur=>$salas){
+                            if($codtur == substr($schoolclass->codtur, -2, 2) and $schoolclass->tiptur == "Graduação"){
+                                foreach($salas as $room_name=>$priority){
+                                    if($priority > 20){
+                                        $room = Room::where("nome", $room_name)->first();
+                                        if($room){
+                                            Priority::updateOrCreate(
+                                                ["room_id"=>$room->id,"school_class_id"=>$schoolclass->id],
+                                                ["priority"=>$priority]
+                                            );
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

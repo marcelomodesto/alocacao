@@ -118,10 +118,8 @@ class RoomController extends Controller
                             $room->schoolclasses()->save($t1);
                         }                        
                     }
-                }else{
-                    if($room->isCompatible($t1)){
-                        $room->schoolclasses()->save($t1);
-                    }
+                }elseif($room->isCompatible($t1)){
+                    $room->schoolclasses()->save($t1);
                 }
             }
         }
@@ -141,7 +139,7 @@ class RoomController extends Controller
 
         $turmas = SchoolClass::whereBelongsTo($schoolterm)
                                 ->where("tiptur","Graduação")
-                                ->where("estmtr","!=", null)
+                                ->whereNotNull("estmtr")
                                 ->whereDoesntHave("room")
                                 ->get()->sortBy("estmtr");
         foreach($turmas as $t1){
