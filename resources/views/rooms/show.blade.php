@@ -13,37 +13,37 @@
 
             @php
                 $st = App\Models\SchoolTerm::getLatest();
-                $horarios = [];
                 $pallet = ['#F0FFF0','#FFFFF0','#F0E68C','#E6E6FA','#FFF0F5','#7CFC00','#D8BFD8','#ADD8E6','#F08080',
                           '#E0FFFF','#FAFAD2','#D3D3D3','#90EE90','#FFB6C1','#FFA07A','#20B2AA','#87CEFA','#778899',
                           '#B0C4DE','#FFFFE0','#F8F8FF','#F5FFFA','#FFE4E1','#FDF5E6','#FFDEAD','#EEE8AA','#AFEEEE'];
                 $i = 0;
-                $cores;
+                $horarios = [];
+                $dias_efetivos = [];
                 foreach($room->schoolclasses()->whereBelongsTo($st)->get() as $sc){
                     $cores[$sc->id] = $pallet[$i];
                     $i+=1;
                     foreach($sc->classschedules as $cs){
+                        array_push($dias_efetivos, $cs->diasmnocp);
                         array_push($horarios, $cs->horent);
                         array_push($horarios, $cs->horsai);
                     }
                 }
                 $horarios = array_unique($horarios);
+                $dias_efetivos = array_unique($dias_efetivos);
+
                 sort($horarios, SORT_REGULAR);      
+
                 $dias = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];  
 
-                $compativeis = 0;
-                foreach(App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")->get() as $t){
-                    if($room->isCompatible($t)){
-                        $compativeis += 1;
-                    }
+                if(!in_array("dom",$dias_efetivos)){
+                    unset($dias[array_search("dom", $dias)]);
+                }
+                if(!in_array("sab",$dias_efetivos)){
+                    unset($dias[array_search("sab", $dias)]);
                 }
 
-                $nao_alocadas = App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")->get()->count();
-                $nao_alocadas += App\Models\SchoolClass::whereExists(function($query){$query->from("fusions")->whereColumn("fusions.master_id","school_classes.id");})->whereDoesntHave("room")->get()->count();
             @endphp
 
-            <h3 class='text-center mb-5'>Total de turmas não alocadas {{$nao_alocadas}}</h3>
-            <h3 class='text-center mb-5'>Turmas não alocadas compativeis {{$compativeis}}</h3>
 
             <p class="text-right">
                 <a  class="btn btn-primary"
@@ -54,8 +54,15 @@
                     <i class="fas fa-plus-circle"></i>
                     Alocar Turma
                 </a>
+                <a  class="btn btn-primary"
+                    href="{{ route('rooms.index') }}"
+                >
+                    <i class="fas fa-arrow-alt-circle-left"></i>
+                    Voltar
+                </a>
                     
             </p>
+            
             @include('rooms.modals.allocate')
 
             @if (count($room->schoolclasses()->whereBelongsTo($st)->get()) > 0)
@@ -97,12 +104,16 @@
                                                     @if($turma->fusion()->exists())
                                                         @php
                                                             $dobradinha = "";
+                                                            $label = "";
                                                             foreach(range(0, count($turma->fusion->schoolclasses)-1) as $y){
                                                                 $dobradinha .= $turma->fusion->schoolclasses[$y]->coddis;
                                                                 $dobradinha .= $y != count($turma->fusion->schoolclasses)-1 ? "/" : "";
+                                                                $label .= $turma->fusion->schoolclasses[$y]->nomdis;
+                                                                $label .= $y != count($turma->fusion->schoolclasses)-1 ? "\n" : "";
                                                             }
                                                         @endphp
                                                         <a class="text-dark" target="_blank"
+                                                            title="{{ $label }}"
                                                             href="{{'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis}}"
                                                         >
                                                             {{$dobradinha}}
@@ -110,7 +121,8 @@
                                                                                                                   
                                                     @else
                                                         @php
-                                                            $label = $turma->estmtr ? "Número estimado de matriculados ".$turma->estmtr : "Não foram encontrados registros anteriores para calcular uma estimativa de matriculados";
+                                                            $label = $turma->nomdis;
+                                                            $label .= "\n". ($turma->estmtr ? "Número estimado de matriculados ".$turma->estmtr : "Não foram encontrados registros anteriores para calcular uma estimativa de matriculados");
                                                         @endphp
                                                         <a class="text-dark" target="_blank"
                                                             title="{{ $label }}"
@@ -145,6 +157,98 @@
                 </div>
             @else
                 <p class="text-center">Não há turmas nessa sala no {{$st->period}}-{{$st->year}}</p>
+            @endif
+            
+            @php
+                $turmas_nao_alocadas = App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")->get();
+                $dobradinhas_nao_alocadas = App\Models\Fusion::whereHas("schoolclasses", function ($query) use ($st){
+                                                    $query->whereBelongsTo($st);
+                                                })->whereHas("master", function ($query){
+                                                    $query->whereDoesntHave("room");
+                                                })->get();
+            @endphp
+            @if($turmas_nao_alocadas)
+            <br>
+            <h3 class='text-center mb-5'>Turmas não alocadas</h3>
+
+                <table class="table table-bordered table-striped table-hover" style="font-size:12px;">
+                    <tr>
+                        <th>Código da Turma</th>
+                        <th>Código da Disciplina</th>
+                        <th>Nome da Disciplina</th>
+                        <th>Tipo da Turma</th>
+                        <th>Horários</th>
+                        <th>Professor(es)</th>
+                    </tr>
+
+                    @foreach($turmas_nao_alocadas as $turma)
+                        <tr style="font-size:12px;">
+                            <td>{{ $turma->codtur }}</td>
+                            <td>{{ $turma->coddis }}</td>
+                            <td>{{ $turma->nomdis }}</td>
+                            <td>{{ $turma->tiptur }}</td>
+                            <td style="{{ $room->isCompatible($turma, $ignore_block=true, $ignore_estmtr=true) ? 'white-space: nowrap;color:green;' : 'white-space: nowrap;color:red' }}">
+                                @foreach($turma->classschedules as $horario)
+                                    {{ $horario->diasmnocp . ' ' . $horario->horent . ' ' . $horario->horsai }} <br/>
+                                @endforeach
+                            </td>
+                            <td style="white-space: nowrap;">
+                                @foreach($turma->instructors as $instructor)
+                                    {{ $instructor->getPronounTreatment() . $instructor->getNomAbrev()}} <br/>
+                                @endforeach
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            @endif
+
+            @if ($dobradinhas_nao_alocadas->count() > 0)
+                <br>
+                <h3 class='text-center mb-5'>Dobradinhas não alocadas</h3>
+
+                <table class="table table-bordered" style="font-size:12px;">
+                    <tr style="background-color:#F5F5F5">
+                        <th>Nome da Dobradinha</th>
+                        <th>Horários</th>
+                        <th>Professor(es)</th>
+                        <th>Código da Turma</th>
+                        <th>Código da Disciplina</th>
+                        <th>Nome da Disciplina</th>
+                        <th>Tipo da Turma</th>
+                    </tr>
+
+                    @foreach($dobradinhas_nao_alocadas as $fusion)
+                        @foreach(range(0, count($fusion->schoolclasses)-1) as $x)
+                            <tr style="font-size:12px;white-space: nowrap;">
+                                @if($x == 0)
+                                    <td rowspan="{{count($fusion->schoolclasses)}}" style="white-space: nowrap;
+                                                                                    vertical-align: middle;">
+                                        @foreach(range(0, count($fusion->schoolclasses)-1) as $y)
+                                                {{$fusion->schoolclasses[$y]->coddis}}     
+                                                {{$y != count($fusion->schoolclasses)-1 ? "/" : ""}}    
+                                        @endforeach
+                                    </td>
+                                    <td rowspan="{{count($fusion->schoolclasses)}}" 
+                                    style="{{ $room->isCompatible($fusion->master, $ignore_block=true, $ignore_estmtr=true) ? 'white-space: nowrap;vertical-align: middle;color:green;' : 'white-space: nowrap;vertical-align: middle;color:red' }}">
+                                        @foreach($fusion->master->classschedules as $horario)
+                                            {{ $horario->diasmnocp . ' ' . $horario->horent . ' ' . $horario->horsai }} <br/>
+                                        @endforeach
+                                    </td>
+                                    <td rowspan="{{count($fusion->schoolclasses)}}" style="white-space: nowrap;
+                                                                                    vertical-align: middle;">
+                                        @foreach($fusion->master->instructors as $instructor)
+                                            {{ $instructor->getPronounTreatment() . $instructor->getNomAbrev()}} <br/>
+                                        @endforeach
+                                    </td>
+                                @endif
+                                <td>{{ $fusion->schoolclasses[$x]->codtur }}</td>
+                                <td>{{ $fusion->schoolclasses[$x]->coddis }}</td>
+                                <td>{{ $fusion->schoolclasses[$x]->nomdis }}</td>
+                                <td>{{ $fusion->schoolclasses[$x]->tiptur }}</td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+                </table>
             @endif
         </div>
     </div>

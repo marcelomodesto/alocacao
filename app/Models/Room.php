@@ -28,16 +28,20 @@ class Room extends Model
         return $this->hasMany(Priority::class);
     }
 
-    public function isCompatible(SchoolClass $t1)
+    public function isCompatible(SchoolClass $t1, $ignore_block=false, $ignore_estmtr=false)
     {
-        if($t1->estmtr){
-            if($this->assentos < $t1->estmtr*1.2){
-                return false;
+        if(!$ignore_estmtr){
+            if($t1->estmtr){
+                if($this->assentos < $t1->estmtr*1.2){
+                    return false;
+                }
             }
         }
-        if(($t1->tiptur=="Graduação" and $this->nome[0]=="A") or 
-            ($t1->tiptur=="Pós Graduação" and $this->nome[0]=="B")){
-            return false;
+        if(!$ignore_block){
+            if(($t1->tiptur=="Graduação" and $this->nome[0]=="A") or 
+                ($t1->tiptur=="Pós Graduação" and $this->nome[0]=="B")){
+                return false;
+            }
         }
         foreach($this->schoolclasses as $t2){
             if($t1->isInConflict($t2)){

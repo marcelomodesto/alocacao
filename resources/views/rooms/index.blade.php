@@ -39,10 +39,51 @@
                             <tr>
                                 <td style="white-space: nowrap;">{{ $sala->nome }}</td>
                                 <td>{{ $sala->assentos }}</td>
+                                @php
+                                    $label = "";
+                                    $first = true;
+                                    $st = App\Models\SchoolTerm::getLatest();
+                                    $turmas_nao_alocadas = App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")->get();
+
+                                    foreach($turmas_nao_alocadas as $turma){
+                                        if($sala->isCompatible($turma, $ignore_block=true, $ignore_estmtr=true)){
+                                            if($first){
+                                                $label .= "Compativel com:\n";
+                                                $first = false;
+                                            }
+                                            $label .= $turma->coddis." ".($turma->tiptur=="Graduação" ? "T.".substr($turma->codtur, -2, 2) : "")."\n";
+                                        }
+                                    }
+
+                                    $dobradinhas_nao_alocadas = App\Models\Fusion::whereHas("schoolclasses", function ($query) use ($st){
+                                                    $query->whereBelongsTo($st);
+                                                })->whereHas("master", function ($query){
+                                                    $query->whereDoesntHave("room");
+                                                })->get();
+                                    
+                                    foreach($dobradinhas_nao_alocadas as $fusion){
+                                        if($sala->isCompatible($fusion->master, $ignore_block=true, $ignore_estmtr=true)){
+                                            if($first){
+                                                $label .= "Compativel com:\n";
+                                                $first = false;
+                                            }
+                                            foreach(range(0, count($fusion->schoolclasses)-1) as $y){
+                                                $label .= $fusion->schoolclasses[$y]->coddis." ";
+                                                $label .= $y != count($fusion->schoolclasses)-1 ? "/" : "\n";
+                                            }
+                                        }
+                                    }
+                                    if($first){
+                                        if($turmas_nao_alocadas or $dobradinhas_nao_alocadas){ 
+                                            $label .= "Nenhuma turma compativel";
+                                        }
+                                    }
+                                    
+                                @endphp
                                 <td class="text-center" style="white-space: nowrap;">
                                     <a  class="btn btn-outline-dark btn-sm"
                                         data-toggle="tooltip" data-placement="top"
-                                        title="Ver Sala"
+                                        title="{{$label}}"
                                         href="{{ route('rooms.show', $sala) }}"
                                     >Ver Sala
                                     </a>

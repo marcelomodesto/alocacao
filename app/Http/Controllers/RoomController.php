@@ -114,7 +114,7 @@ class RoomController extends Controller
                     })->whereBelongsTo($st)->whereDoesntHave("room"))->get();
 
         foreach($turmas as $turma){
-            if($room->isCompatible($turma)){
+            if($room->isCompatible($turma, $ignore_block=true, $ignore_estmtr=true)){
                 array_push($res, $turma);
             }
         }
@@ -146,7 +146,7 @@ class RoomController extends Controller
         foreach($prioridades as $prioridade){
             $t1 = $prioridade->schoolclass;
             $room = $prioridade->room;
-            if(!$t1->room()->exists()){
+            if(!$t1->room()->exists() and $t1->coddis!="MAE0116"){
                 if($t1->fusion()->exists()){
                     if($t1->fusion->master->id == $t1->id){
                         if($room->isCompatible($t1)){
@@ -179,7 +179,7 @@ class RoomController extends Controller
                                 ->get()->sortBy("estmtr");
         foreach($turmas as $t1){
             foreach(Room::all()->sortby("assentos") as $sala){
-                if(!$t1->room()->exists()){
+                if(!$t1->room()->exists() and $t1->coddis!="MAE0116"){
                     if($t1->fusion()->exists()){
                         if($t1->fusion->master->id == $t1->id){
                             if($sala->isCompatible($t1)){
