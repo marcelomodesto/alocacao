@@ -187,7 +187,6 @@
                             <td>{{ $turma->coddis }}</td>
                             <td>                                
                                 <a class="text-dark" target="_blank"
-                                    title="{{ $label }}"
                                     href="{{ $turma->tiptur=='Graduação' ? 'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis : ''}}"
                                 >
                                     {{ $turma->nomdis }}
