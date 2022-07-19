@@ -170,7 +170,6 @@ class SchoolClass extends Model
             $query .= " AND T.verdis = (SELECT MAX(T.verdis) 
                                         FROM TURMAGR AS T 
                                         WHERE T.coddis = :coddis)";
-            $query .= " AND T.obstur NOT LIKE '%fictício%'";
             $query .= " AND D.coddis = T.coddis";
             $query .= " AND D.verdis = T.verdis";
             $query .= " AND DC.coddis = T.coddis";

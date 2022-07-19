@@ -185,7 +185,14 @@
                         <tr style="font-size:12px;">
                             <td>{{ $turma->codtur }}</td>
                             <td>{{ $turma->coddis }}</td>
-                            <td>{{ $turma->nomdis }}</td>
+                            <td>                                
+                                <a class="text-dark" target="_blank"
+                                    title="{{ $label }}"
+                                    href="{{ $turma->tiptur=='Graduação' ? 'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$turma->coddis : ''}}"
+                                >
+                                    {{ $turma->nomdis }}
+                                </a>
+                            </td>
                             <td>{{ $turma->tiptur }}</td>
                             <td style="{{ $room->isCompatible($turma, $ignore_block=true, $ignore_estmtr=true) ? 'white-space: nowrap;color:green;' : 'white-space: nowrap;color:red' }}">
                                 @foreach($turma->classschedules as $horario)
