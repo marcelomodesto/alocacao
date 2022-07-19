@@ -51,7 +51,7 @@
                                                 $label .= "Compativel com:\n";
                                                 $first = false;
                                             }
-                                            $label .= $turma->coddis." ".($turma->tiptur=="Graduação" ? "T.".substr($turma->codtur, -2, 2) : "")."\n";
+                                            $label .= $turma->coddis." ".($turma->tiptur=="Graduação" ? "T.".substr($turma->codtur, -2, 2) : "")." ".$turma->nomdis."\n";
                                         }
                                     }
 
