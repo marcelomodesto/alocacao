@@ -9,6 +9,7 @@ use App\Models\ClassSchedule;
 use App\Models\Room;
 use App\Models\Priority;
 use App\Models\Fusion;
+use App\Models\CourseInformation;
 use Uspdev\Replicado\DB;
 use Carbon\Carbon;
 
@@ -83,6 +84,11 @@ class SchoolClass extends Model
     public function fusion()
     {
         return $this->belongsTo(Fusion::class, "fusion_id");
+    }
+
+    public function courseinformations()
+    {
+        return $this->belongsToMany(CourseInformation::class);
     }
 
     public function isInConflict($turma)
