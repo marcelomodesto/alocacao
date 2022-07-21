@@ -29,14 +29,13 @@ class CourseInformation extends Model
     static $codtur_by_course = [
         "43"=>["nomcur"=>"Matemática Bacharelado", "perhab"=>"diurno", "codcur"=>"45031"],
         "45"=>["nomcur"=>"Bacharelado em Ciência da Computação", "perhab"=>"diurno", "codcur"=>"45052"],
-        "46"=>["nomcur"=>"Estatística Bacharelado", "perhab"=>"diurno", "codcur"=>"45052"],
+        "46"=>["nomcur"=>"Estatística Bacharelado", "perhab"=>"diurno", "codcur"=>"45062"],
         "44"=>["nomcur"=>"Matemática Aplicada - Bacharelado", "perhab"=>"diurno", "codcur"=>"45042"],
         "54"=>["nomcur"=>"Bacharelado em Matemática Aplicada e Computacional", "perhab"=>"noturno", "codcur"=>"45070"],
         "42"=>["nomcur"=>"Matemática Licenciatura", "perhab"=>"diurno", "codcur"=>"45024"],
         "47"=>["nomcur"=>"Matemática Licenciatura", "perhab"=>"noturno", "grupo"=>"A", "codcur"=>"45024"],
         "48"=>["nomcur"=>"Matemática Licenciatura", "perhab"=>"noturno", "grupo"=>"B", "codcur"=>"45024"],
     ];
-
 
     public static function getFromReplicadoByCoddis($coddis)
     {
@@ -51,6 +50,7 @@ class CourseInformation extends Model
         $query .= " AND HGR.dtadtvhab IS NULL";
         $query .= " AND CGR.codcur = CS.codcur";
         $query .= " AND CGR.codhab = HGR.codhab";
+        $query .= " AND CGR.sitcrl = :sitcrl";
         $query .= " AND GC.codcrl = CGR.codcrl";
         $query .= " AND GC.coddis = :coddis";
         $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
@@ -59,6 +59,7 @@ class CourseInformation extends Model
         $param = [
             'sglund' => env("UNIDADE"),
             'coddis' => $coddis,
+            'sitcrl' => "AT",
         ];
 
         return array_unique(DB::fetchAll($query, $param),SORT_REGULAR);

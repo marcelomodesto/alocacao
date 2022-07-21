@@ -24,6 +24,7 @@ class SchoolClass extends Model
         'nomdis',
         'coddis',
         'estmtr',
+        'externa',
         'dtainitur',
         'dtafimtur',
         'school_term_id',
@@ -153,6 +154,35 @@ class SchoolClass extends Model
 
         $this->estmtr = count($res)>=3 ? array_sum(array_column($res, "TOTALMATRICULADOS"))/count($res) : null;
     }
+    
+    public static function getExternalDisciplinesFromReplicadoByCourse($course)
+    {
+
+        $query = " SELECT GC.coddis";
+        $query .= " FROM UNIDADE AS U, SETOR AS S, PREFIXODISCIP AS PD, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC, DISCIPGRCODIGO AS DGRC";
+        $query .= " WHERE CS.codcur = :codcur";
+        $query .= " AND HGR.codcur = CS.codcur";
+        $query .= " AND HGR.perhab = :perhab";
+        $query .= " AND CGR.codcur = HGR.codcur";
+        $query .= " AND CGR.codhab = HGR.codhab";
+        $query .= " AND CGR.sitcrl = :sitcrl";
+        $query .= " AND GC.codcrl = CGR.codcrl";
+        $query .= " AND GC.tipobg = :tipobg";
+        $query .= " AND DGRC.coddis = GC.coddis";
+        $query .= " AND PD.codclg = DGRC.codclg";
+        $query .= " AND S.codset = PD.codset";
+        $query .= " AND U.codund = S.codund";
+        $query .= " AND U.sglund NOT LIKE :sglund";
+        $param = [
+            'sglund' => env("UNIDADE"),
+            'codcur' => $course["codcur"],
+            'perhab' => $course["perhab"],
+            'tipobg' => "O",
+            'sitcrl' => "AT",
+        ];
+
+        return array_column(array_unique(DB::fetchAll($query, $param),SORT_REGULAR), "coddis");
+    }
 
     public static function getFromReplicadoBySchoolTerm(SchoolTerm $schoolTerm)
     {
@@ -197,6 +227,40 @@ class SchoolClass extends Model
 
             }
             $schoolclasses = array_merge($schoolclasses, $turmas);
+        }
+
+        foreach(CourseInformation::$codtur_by_course as $sufixo_codtur=>$course){
+            $codtur = $schoolTerm->year . $periodo[$schoolTerm->period] . $sufixo_codtur;
+            foreach(SELF::getExternalDisciplinesFromReplicadoByCourse($course) as $coddis){
+                $query = " SELECT T.codtur, T.coddis, D.nomdis, T.dtainitur, T.dtafimtur";
+                $query .= " FROM TURMAGR AS T, DISCIPLINAGR AS D, DISCIPGRCODIGO AS DC";
+                $query .= " WHERE (T.coddis = :coddis)";
+                $query .= " AND T.codtur LIKE :codtur";
+                $query .= " AND T.verdis = (SELECT MAX(T.verdis) 
+                                            FROM TURMAGR AS T 
+                                            WHERE T.coddis = :coddis)";
+                $query .= " AND D.coddis = T.coddis";
+                $query .= " AND D.verdis = T.verdis";
+                $query .= " AND DC.coddis = T.coddis";
+                $param = [
+                    'coddis' => $coddis,
+                    'codtur' => $codtur,
+                ];
+
+                $turmas = DB::fetchAll($query, $param);
+                
+                foreach($turmas as $key => $turma){
+                    $turmas[$key]['class_schedules'] = ClassSchedule::getFromReplicadoBySchoolClass($turma);
+                    $turmas[$key]['instructors'] = Instructor::getFromReplicadoBySchoolClass($turma);
+                    $turmas[$key]['school_term_id'] = $schoolTerm->id;
+                    $turmas[$key]['dtainitur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtainitur"])->format("d/m/Y");
+                    $turmas[$key]['dtafimtur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtafimtur"])->format("d/m/Y");
+                    $turmas[$key]['tiptur'] = "Graduação";
+                    $turmas[$key]['externa'] = "Sim";
+    
+                }
+                $schoolclasses = array_merge($schoolclasses, $turmas);
+            }
         }
 
         $query = " SELECT U.codund";

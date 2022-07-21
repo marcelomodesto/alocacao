@@ -7,6 +7,7 @@ use App\Models\Room;
 use App\Models\SchoolTerm;
 use App\Models\Priority;
 use App\Models\SchoolClass;
+use App\Models\CourseInformation;
 use App\Http\Requests\CompatibleRoomRequest;
 use App\Http\Requests\AllocateRoomRequest;
 
@@ -67,12 +68,7 @@ class RoomController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Room  $room
-     * @return \Illuminate\Http\Response
+    /**CourseInformation
      */
     public function update(Request $request, Room $room)
     {
@@ -133,11 +129,52 @@ class RoomController extends Controller
 
     public function distributes()
     {
+        //Implementar um formulario para saber as salas indisponiveis
+        $salas_indiposniveis = ["B05"];
+
         $schoolterm = SchoolTerm::getLatest();
 
         foreach(SchoolClass::whereBelongsTo($schoolterm)->get() as $schoolclass){
             $schoolclass->room()->dissociate();
             $schoolclass->save();
+        }
+
+        foreach(CourseInformation::$codtur_by_course as $sufixo_codtur=>$course){
+            $turmas = SchoolClass::whereBelongsTo($schoolterm)->whereHas("courseinformations", function($query){
+                                        $query->whereIn("numsemidl",[1,2])->where("tipobg","O");
+                                    })->where("codtur","like","%".$sufixo_codtur)->get();
+                                    
+            $ps = Priority::whereHas("schoolclass",function($query)use($turmas){
+                                $query->whereIn("id",$turmas->pluck("id")->toArray());
+                            })->with("room")->get();
+
+            $salas = [];
+            foreach($ps->groupBy("room.id") as $sala_id=>$p){
+                $salas[$p->sum("priority")] = Room::find($sala_id);
+            }
+            krsort($salas);
+            
+            $salas = $salas ? $salas : Room::all()->sortby("assentos");
+
+            $alocado = false;
+            foreach($salas as $room){
+                if(!$alocado){
+                    if(!in_array($room->nome, $salas_indiposniveis)){
+                        $conflito = false;
+                        foreach($turmas as $turma){
+                            if(!$room->isCompatible($turma)){
+                                $conflito = true;
+                            }
+                        }
+                        if(!$conflito){
+                            foreach($turmas as $turma){
+                                $room->schoolclasses()->save($turma);
+                            }
+                            $alocado = true;
+                        }
+                    }
+                }
+            }
         }
 
         $prioridades = Priority::whereHas("schoolclass", function($query) use($schoolterm) {$query->whereBelongsTo($schoolterm);})
@@ -146,15 +183,17 @@ class RoomController extends Controller
         foreach($prioridades as $prioridade){
             $t1 = $prioridade->schoolclass;
             $room = $prioridade->room;
-            if(!$t1->room()->exists() and $t1->coddis!="MAE0116"){
-                if($t1->fusion()->exists()){
-                    if($t1->fusion->master->id == $t1->id){
-                        if($room->isCompatible($t1)){
-                            $room->schoolclasses()->save($t1);
-                        }                        
+            if(!in_array($room->nome, $salas_indiposniveis)){
+                if(!$t1->room()->exists() and $t1->coddis!="MAE0116"){
+                    if($t1->fusion()->exists()){
+                        if($t1->fusion->master->id == $t1->id){
+                            if($room->isCompatible($t1)){
+                                $room->schoolclasses()->save($t1);
+                            }                        
+                        }
+                    }elseif($room->isCompatible($t1)){
+                        $room->schoolclasses()->save($t1);
                     }
-                }elseif($room->isCompatible($t1)){
-                    $room->schoolclasses()->save($t1);
                 }
             }
         }
@@ -164,9 +203,11 @@ class RoomController extends Controller
                                 ->whereDoesntHave("room")->get();
         foreach($turmas as $t1){
             foreach(Room::all()->shuffle() as $sala){
-                if(!$t1->room()->exists() and !$t1->fusion()->exists()){
-                    if($sala->isCompatible($t1)){
-                        $sala->schoolclasses()->save($t1);
+                if(!in_array($sala->nome, $salas_indiposniveis)){
+                    if(!$t1->room()->exists() and !$t1->fusion()->exists()){
+                        if($sala->isCompatible($t1)){
+                            $sala->schoolclasses()->save($t1);
+                        }
                     }
                 }
             }
@@ -179,15 +220,17 @@ class RoomController extends Controller
                                 ->get()->sortBy("estmtr");
         foreach($turmas as $t1){
             foreach(Room::all()->sortby("assentos") as $sala){
-                if(!$t1->room()->exists() and $t1->coddis!="MAE0116"){
-                    if($t1->fusion()->exists()){
-                        if($t1->fusion->master->id == $t1->id){
-                            if($sala->isCompatible($t1)){
-                                $sala->schoolclasses()->save($t1);
-                            }                        
+                if(!in_array($sala->nome, $salas_indiposniveis)){
+                    if(!$t1->room()->exists() and $t1->coddis!="MAE0116"){
+                        if($t1->fusion()->exists()){
+                            if($t1->fusion->master->id == $t1->id){
+                                if($sala->isCompatible($t1)){
+                                    $sala->schoolclasses()->save($t1);
+                                }                        
+                            }
+                        }elseif($sala->isCompatible($t1)){
+                            $sala->schoolclasses()->save($t1);
                         }
-                    }elseif($sala->isCompatible($t1)){
-                        $sala->schoolclasses()->save($t1);
                     }
                 }
             }

@@ -7,32 +7,13 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <h1 class='text-center mb-5'>Turmas</h1>
+            <h1 class='text-center mb-5'>Turmas de outras unidades</h1>
             @if($schoolterm)
                 <h4 class='text-center mb-5'>{{ $schoolterm->period . ' de ' . $schoolterm->year }}</h4>
             @endif
 
-            <div id="progressbar-div">
-            </div>
-            <br>
-            <p class="text-right">
-                <a  class="btn btn-primary"
-                    title="Cadastrar" 
-                    href="{{ route('schoolclasses.create') }}"
-                >
-                    <i class="fas fa-plus-circle"></i>
-                    Cadastrar
-                </a>
-                
-                <a  class="btn btn-primary"
-                    title="Importar" 
-                    href="{{ route('schoolclasses.import') }}"
-                >
-                    <i class="fas fa-file-upload"></i>
-                    Importar do Jupiter
-                </a>
-                    
-            </p>
+            <h4 class='text-center mb-5'>Turmas que não serão ministradas no IME devem ser excluidas</h4>
+
 
             @if (count($turmas) > 0)
                 <table class="table table-bordered table-striped table-hover" style="font-size:12px;">

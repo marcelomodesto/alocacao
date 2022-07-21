@@ -24,15 +24,9 @@ class SchoolClassController extends Controller
      */
     public function index(IndexSchoolClassRequest $request)
     {
-        $validated = $request->validated();
+        $schoolterm = SchoolTerm::getLatest();
 
-        if(isset($validated['periodoId'])){
-            $schoolterm = SchoolTerm::find($validated['periodoId']);
-        }else{
-            $schoolterm = SchoolTerm::getLatest();
-        }
-
-        $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->get() : [];
+        $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->where("externa", "Não")->get() : [];
 
         return view('schoolclasses.index', compact(['turmas', 'schoolterm']));
     }
@@ -156,9 +150,19 @@ class SchoolClassController extends Controller
     {
         $schoolclass->instructors()->detach();
         $schoolclass->classschedules()->detach();
+        $schoolclass->courseinformations()->detach();
         $schoolclass->delete();
 
-        return redirect('/schoolclasses');
+        return back();
+    }
+
+    public function externals()
+    {
+        $schoolterm = SchoolTerm::getLatest();
+
+        $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->where("externa", "Sim")->get() : [];
+
+        return view('schoolclasses.externals', compact(['turmas', 'schoolterm']));
     }
 
     public function import()
@@ -172,55 +176,57 @@ class SchoolClassController extends Controller
                 ($turma['tiptur'] == "Graduação" and substr($turma["codtur"], -2, 2) >= "40") or
                 ($turma['tiptur'] == "Graduação" and $turma["coddis"] == "MAE0116")) and
                 ($turma["nomdis"] != "Trabalho de Formatura")){
-                $schoolclass = SchoolClass::where(array_intersect_key($turma, array_flip(array('codtur', 'coddis'))))->first();
-    
-                if(!$schoolclass){
-                    $schoolclass = new SchoolClass;
-                    $schoolclass->fill($turma);
-                    $schoolclass->save();
-            
-                    foreach($turma['instructors'] as $instructor){
-                        if($instructor){
-                            $schoolclass->instructors()->attach(Instructor::firstOrCreate(Instructor::getFromReplicadoByCodpes($instructor["codpes"])));
-                        }
-                    }
+                if($turma['class_schedules']){
+                    $schoolclass = SchoolClass::where(array_intersect_key($turma, array_flip(array('codtur', 'coddis'))))->first();
         
-                    foreach($turma['class_schedules'] as $classSchedule){
-                        $schoolclass->classschedules()->attach(ClassSchedule::firstOrCreate($classSchedule));
-                    }
+                    if(!$schoolclass){
+                        $schoolclass = new SchoolClass;
+                        $schoolclass->fill($turma);
+                        $schoolclass->save();
+                
+                        foreach($turma['instructors'] as $instructor){
+                            if($instructor){
+                                $schoolclass->instructors()->attach(Instructor::firstOrCreate(Instructor::getFromReplicadoByCodpes($instructor["codpes"])));
+                            }
+                        }
+            
+                        foreach($turma['class_schedules'] as $classSchedule){
+                            $schoolclass->classschedules()->attach(ClassSchedule::firstOrCreate($classSchedule));
+                        }
 
-                    $priorities = Priority::$priorities_by_course;
+                        $priorities = Priority::$priorities_by_course;
 
-                    if(in_array($schoolclass->coddis,array_keys($priorities))){
-                        foreach($priorities[$schoolclass->coddis] as $codtur=>$salas){
-                            if($codtur == substr($schoolclass->codtur, -2, 2) and $schoolclass->tiptur == "Graduação"){
-                                foreach($salas as $room_name=>$priority){
-                                    if($priority > 20){
-                                        $room = Room::where("nome", $room_name)->first();
-                                        if($room){
-                                            Priority::updateOrCreate(
-                                                ["room_id"=>$room->id,"school_class_id"=>$schoolclass->id],
-                                                ["priority"=>$priority]
-                                            );
+                        if(in_array($schoolclass->coddis,array_keys($priorities))){
+                            foreach($priorities[$schoolclass->coddis] as $codtur=>$salas){
+                                if($codtur == substr($schoolclass->codtur, -2, 2) and $schoolclass->tiptur == "Graduação"){
+                                    foreach($salas as $room_name=>$priority){
+                                        if($priority > 20){
+                                            $room = Room::where("nome", $room_name)->first();
+                                            if($room){
+                                                Priority::updateOrCreate(
+                                                    ["room_id"=>$room->id,"school_class_id"=>$schoolclass->id],
+                                                    ["priority"=>$priority]
+                                                );
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    if(in_array(substr($schoolclass->codtur,-2,2),array_keys(CourseInformation::$codtur_by_course))){
-                        $course = CourseInformation::$codtur_by_course[substr($schoolclass->codtur, -2, 2)];
-                        foreach(CourseInformation::getFromReplicadoByCoddis($schoolclass->coddis) as $info){
-                            if($info["nomcur"]==$course["nomcur"] and $info["perhab"]==$course["perhab"] and $info["codcur"]==$course["codcur"]){
-                                CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
+                        if(in_array(substr($schoolclass->codtur,-2,2),array_keys(CourseInformation::$codtur_by_course))){
+                            $course = CourseInformation::$codtur_by_course[substr($schoolclass->codtur, -2, 2)];
+                            foreach(CourseInformation::getFromReplicadoByCoddis($schoolclass->coddis) as $info){
+                                if($info["nomcur"]==$course["nomcur"] and $info["perhab"]==$course["perhab"] and $info["codcur"]==$course["codcur"]){
+                                    CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
+                                }
                             }
                         }
-                    }
 
-                    $schoolclass->calcEstimadedEnrollment();
-                    
-                    $schoolclass->save();
+                        $schoolclass->calcEstimadedEnrollment();
+                        
+                        $schoolclass->save();
+                    }
                 }
             }
         }

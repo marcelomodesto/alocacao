@@ -18,6 +18,10 @@ $submenu = [
         'url' => config('app.url') . '/fusions',
     ],
     [
+        'text' => 'Externas',
+        'url' => config('app.url') . '/schoolclasses/externals',
+    ],
+    [
         'text' => 'Salas',
         'url' => config('app.url') . '/rooms',
     ],
