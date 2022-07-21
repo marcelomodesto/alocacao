@@ -281,6 +281,7 @@ class SchoolClass extends Model
         $query .= " AND O.sgldis = D.sgldis";
         $query .= " AND O.numseqdis = D.numseqdis";
         $query .= " AND O.fmtofe = :fmtofe";
+        $query .= " AND O.dtacantur IS NULL";
         $query .= " AND O.dtainiofe >= :dtainimin";
         $query .= " AND O.dtafimofe <= :dtafimmax";
         $param = [
