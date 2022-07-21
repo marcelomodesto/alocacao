@@ -13,6 +13,7 @@ use App\Models\ClassSchedule;
 use App\Models\Priority;
 use App\Models\Fusion;
 use App\Models\Room;
+use App\Models\CourseInformation;
 
 class SchoolClassController extends Controller
 {
@@ -204,6 +205,15 @@ class SchoolClassController extends Controller
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+
+                    if(in_array(substr($schoolclass->codtur,-2,2),array_keys(CourseInformation::$codtur_by_course))){
+                        $course = CourseInformation::$codtur_by_course[substr($schoolclass->codtur, -2, 2)];
+                        foreach(CourseInformation::getFromReplicadoByCoddis($schoolclass->coddis) as $info){
+                            if($info["nomcur"]==$course["nomcur"] and $info["perhab"]==$course["perhab"] and $info["codcur"]==$course["codcur"]){
+                                CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
                             }
                         }
                     }
