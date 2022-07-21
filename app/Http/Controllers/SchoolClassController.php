@@ -241,12 +241,12 @@ class SchoolClassController extends Controller
             $done = [];
             foreach($docente->schoolclasses as $t1){
                 $conflicts[$t1->id] = [];
+                array_push($done, $t1->id);
                 foreach($docente->schoolclasses()->whereNotIn("id", $done)->get() as $t2){
-                    if($t1->isInConflict($t2) and $t1->coddis != $t2->coddis and $t1->coddis!="MAE0116"){
+                    if($t1->isInConflict($t2) and $t1->instructors->diff($t2->instructors)->isEmpty() and $t2->instructors->diff($t1->instructors)->isEmpty()){
                         array_push($conflicts[$t1->id], $t2->id);
                     }
                 }
-                array_push($done, $t1->id);
                 if(!$conflicts[$t1->id]){
                     unset($conflicts[$t1->id]);
                 }
