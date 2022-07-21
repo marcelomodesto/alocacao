@@ -123,36 +123,21 @@ class SchoolClass extends Model
 
     public function calcEstimadedEnrollment()
     {
-        $query = " SELECT T.coddis, T.codtur, (T.nummtr+T.nummtrturcpl+T.nummtropt+T.nummtrecr+T.nummtroptlre) AS TOTALMATRICULADOS";
-        $query .= " FROM TURMAGR AS T, DISCIPLINAGR AS D, DISCIPGRCODIGO AS DC";
+        $query = " SELECT (T.numins+T.numinscpl+T.numinsopt+T.numinsecr+T.numinsoptlre) AS TOTALINSCRITOS";
+        $query .= " FROM TURMAGR AS T";
         $query .= " WHERE (T.coddis = :coddis)";
         $query .= " AND T.codtur LIKE :codtur";
         $query .= " AND T.verdis = (SELECT MAX(T.verdis) 
                                     FROM TURMAGR AS T 
                                     WHERE T.coddis = :coddis)";
-        $query .= " AND D.coddis = T.coddis";
-        $query .= " AND D.verdis = T.verdis";
-        $query .= " AND DC.coddis = T.coddis";
         $param = [
             'coddis' => $this->coddis,
-            'codtur' => "%".substr($this->codtur, -3, 3),
+            'codtur' => $this->codtur,
         ];
 
         $res = DB::fetchAll($query, $param);
 
-        $rmv = [];
-
-        foreach($res as $key=>$value){
-            if($value["TOTALMATRICULADOS"]==0){
-                array_push($rmv, $key);
-            }
-        }
-
-        foreach($rmv as $i){
-            unset($res[$i]);
-        }
-
-        $this->estmtr = count($res)>=3 ? array_sum(array_column($res, "TOTALMATRICULADOS"))/count($res) : null;
+        $this->estmtr = $res ? $res[0]["TOTALINSCRITOS"] : null;
     }
     
     public static function getExternalDisciplinesFromReplicadoByCourse($course)

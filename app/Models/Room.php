@@ -31,8 +31,13 @@ class Room extends Model
     public function isCompatible(SchoolClass $t1, $ignore_block=false, $ignore_estmtr=false)
     {
         if(!$ignore_estmtr){
-            if($t1->estmtr){
-                if($this->assentos < $t1->estmtr*1.2){
+            if($t1->fusion()->exists()){
+                if($t1->fusion->schoolclasses->pluck("estmtr")->filter()->isNotEmpty() and
+                    ($this->assentos < $t1->fusion->schoolclasses->sum("estmtr"))){
+                        return false;
+                }
+            }elseif($t1->estmtr){
+                if($this->assentos < $t1->estmtr){
                     return false;
                 }
             }
