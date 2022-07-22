@@ -105,12 +105,30 @@
                                                         @php
                                                             $dobradinha = "";
                                                             $label = "";
-                                                            foreach(range(0, count($turma->fusion->schoolclasses)-1) as $y){
-                                                                $dobradinha .= $turma->fusion->schoolclasses[$y]->coddis;
-                                                                $dobradinha .= $y != count($turma->fusion->schoolclasses)-1 ? "/" : "";
-                                                                $label .= $turma->fusion->schoolclasses[$y]->nomdis;
-                                                                $label .= $y != count($turma->fusion->schoolclasses)-1 ? "\n" : "";
+                                                            if($turma->fusion->schoolclasses->pluck("coddis")->unique()->count() == 1){
+                                                                $dobradinha .= $turma->fusion->schoolclasses[0]->coddis." ";
+                                                                $label .= $turma->fusion->schoolclasses[0]->nomdis;
+                                                                foreach(range(0, count($turma->fusion->schoolclasses)-1) as $y){
+                                                                    $dobradinha .= "T.".substr($turma->fusion->schoolclasses[$y]->codtur, -2, 2);
+                                                                    $dobradinha .= $y != count($turma->fusion->schoolclasses)-1 ? "/" : "";
+
+                                                                }
+                                                            }elseif($turma->fusion->schoolclasses()->where("tiptur","Graduação")->get()->count() == $turma->fusion->schoolclasses->count()){
+                                                                foreach(range(0, count($turma->fusion->schoolclasses)-1) as $y){
+                                                                    $dobradinha .= $turma->fusion->schoolclasses[$y]->coddis." T.".substr($turma->fusion->schoolclasses[$y]->codtur, -2, 2);
+                                                                    $dobradinha .= $y != count($turma->fusion->schoolclasses)-1 ? "/" : "";
+                                                                }
+
+                                                            }else{
+                                                                foreach(range(0, count($turma->fusion->schoolclasses)-1) as $y){
+                                                                    $dobradinha .= $turma->fusion->schoolclasses[$y]->coddis;
+                                                                    $dobradinha .= $y != count($turma->fusion->schoolclasses)-1 ? "/" : "";
+                                                                    $label .= $turma->fusion->schoolclasses[$y]->nomdis;
+                                                                    $label .= $y != count($turma->fusion->schoolclasses)-1 ? "\n" : "";
+                                                                }
+                                                                $dobradinha .= " T.".substr($turma->codtur, -2, 2);
                                                             }
+                                                    
                                                         @endphp
                                                         <a class="text-dark" target="_blank"
                                                             title="{{ $label }}"
