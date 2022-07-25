@@ -12,22 +12,33 @@
             @if (count($salas) > 0)
                 <div class="d-flex justify-content-center">
                     <div class="col-md-6">
-
-                    <form id="distributesSchoolClassesForm" action="{{ route('rooms.distributes') }}" method="POST"
-                        enctype="multipart/form-data"
-                        >
-                        <p class="text-right">
-
-                            @method('patch')
-                            @csrf
-                            <button  class="btn btn-primary"
-                                type="submit"
-                                href="{{ route('rooms.distributes') }}"
+                        <div class="float-right" style="margin-bottom: 20px;">
+                            <form style="display: inline;"  action="{{ route('rooms.report') }}" method="POST"
+                            enctype="multipart/form-data"
                             >
-                                Distribuir Turmas
-                            </button>
-                        </p>
-                    </form>
+                                @csrf
+                                <button  class="btn btn-primary"
+                                    type="submit"
+                                >
+                                    Gerar Relatório
+                                </button>
+                            </form>
+                            
+                            <form style="display: inline;" id="distributesSchoolClassesForm" action="{{ route('rooms.distributes') }}" method="POST"
+                            enctype="multipart/form-data"
+                            >
+                                @method('patch')
+                                @csrf
+                                <button  class="btn btn-primary"
+                                    type="submit"
+                                    href="{{ route('rooms.distributes') }}"
+                                >
+                                    Distribuir Turmas
+                                </button>
+                            </form>
+                        </div>
+                    <br>
+
                     <table class="table table-bordered table-striped table-hover" style="font-size:15px;">
                         <tr>
                             <th>Nome</th>

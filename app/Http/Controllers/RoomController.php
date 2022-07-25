@@ -10,6 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\CourseInformation;
 use App\Http\Requests\CompatibleRoomRequest;
 use App\Http\Requests\AllocateRoomRequest;
+use Ismaelw\LaraTeX\LaraTeX;
 
 class RoomController extends Controller
 {
@@ -125,6 +126,14 @@ class RoomController extends Controller
         $room->schoolclasses()->save(SchoolClass::find($validated["school_class_id"]));
 
         return back();
+    }
+
+    public function report()
+    {
+
+        return (new LaraTeX('rooms.reports.latex'))->with([
+            'schoolterm' => SchoolTerm::getLatest(),
+        ])->download('relatorio.pdf');
     }
 
     public function distributes()

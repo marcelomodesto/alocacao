@@ -31,6 +31,7 @@ Route::resource('schoolclasses', SchoolClassController::class);
 
 Route::resource('instructors', InstructorController::class);
 
+Route::post('/rooms/report', [RoomController::class, 'report'])->name('rooms.report');
 Route::patch('/rooms/{room}/allocate', [RoomController::class, 'allocate'])->name('rooms.allocate');
 Route::get('/rooms/compatible', [RoomController::class, 'compatible'])->name('rooms.compatible');
 Route::patch('/rooms/distributes', [RoomController::class, 'distributes'])->name('rooms.distributes');
