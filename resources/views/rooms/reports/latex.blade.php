@@ -52,26 +52,28 @@
 \thispagestyle{empty}
 \pagebreak
 \end{titlepage}
+@foreach(App\Models\CourseInformation::$codtur_by_course as $course)
+  @foreach([0,1] as $x)
+    @php
+      $semestres = $schoolterm->period == "1° Semestre" ? [1+$x*4,3+$x*4] : [2+$x*4,4+$x*4];
+      $tem_turma = App\Models\SchoolClass::whereBelongsTo($schoolterm)
+                  ->whereHas("courseinformations", function($query)use($semestres, $course){$query->whereIn("numsemidl",$semestres)->where("codcur",$course["codcur"])->where("perhab", $course["perhab"]);})->get()->isNotEmpty();
+    @endphp
+    @if($tem_turma)
+      \section*{{!! $course["nomcur"] !!}}
 
-\section*{Bacharelado em Matemática}
+      \begin{tabular}{ l l }
+        Código: & \textbf{{!! $course["codcur"] !!} } \\
+        Período: & \textbf{{!! ucfirst($course["perhab"]) !!}}
+      \end{tabular}
 
-\begin{tabular}{ l l }
-  Código: & \textbf{45031} \\
-  Período: & \textbf{Diurno}
-\end{tabular}
-
-\begin{table}[h]
-    \begin{center}
-        \begin{tabular}{ |c|c|c|c|c|c|c| }
-        @php
-          $semestres = $schoolterm->period == "1° Semestre" ? [1,3] : [2,4];
-        @endphp
+      \begin{longtable}{ |>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}| }
         \hline
           Turmas & Horário & Seg & Ter & Qua & Qui & Sex\\
         @foreach($semestres as $semestre)
           @php
             $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
-              ->whereHas("courseinformations", function($query)use($semestre){$query->where("numsemidl",$semestre)->where("codcur",45031);})->get();
+              ->whereHas("courseinformations", function($query)use($semestre, $course){$query->where("numsemidl",$semestre)->where("codcur",$course["codcur"])->where("perhab", $course["perhab"]);})->get();
 
             $dias = ['seg', 'ter', 'qua', 'qui', 'sex'];  
 
@@ -101,9 +103,9 @@
                   @foreach($turmas as $turma)
                       @if($turma->classschedules()->where("diasmnocp",$dia)->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty())
                         @if($turma->fusion()->exists())
-                          \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->coddis !!}}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
+                          {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
                         @else
-                          \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->coddis !!}}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
+                          {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
                         @endif
                       @endif
                   @endforeach
@@ -111,16 +113,40 @@
               @endforeach
               \\ 
               \cline{2-7}
-              
             @endif
           @endforeach
-          \cline{2-7}
           \hline
         @endforeach
-        \end{tabular}
-    \end{center}
-\end{table}
+      \end{longtable}
 
+      @php
+        $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
+          ->whereHas("courseinformations", function($query)use($semestres, $course){$query->whereIn("numsemidl",$semestres)->where("codcur",$course["codcur"])->where("perhab", $course["perhab"]);})->get()->sortBy("nomdis");
+      @endphp
 
+      \begin{tabular}{ c | >{\raggedright}m{9.5cm} | c | c }
+      \multicolumn{1}{>{\centering\arraybackslash}m{23mm}|}{\textbf{Código}} & 
+      \multicolumn{1}{c|}{\textbf{Nome da Disciplina}} & 
+      \multicolumn{1}{c|}{\textbf{Sala}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{23mm}}{\textbf{Turma}} \\
+      \hline
+        @foreach($turmas as $turma)
+          {!! $turma->coddis !!} & 
+          \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->nomdis !!}} 
+          & 
+          @if($turma->fusion()->exists()) 
+            {!! $turma->fusion->master->room()->exists() ? $turma->fusion->master->room->nome : "Sem Sala" !!}
+          @else
+            {!! $turma->room()->exists() ? $turma->room->nome : "Sem Sala" !!}
+          @endif
+          & 
+          {!! "T.".substr($turma->codtur,-2,2) !!} \\
+          \hline
+        @endforeach
+      \end{tabular}
+    \pagebreak
+    @endif
+  @endforeach
+@endforeach
 
 \end{document}
