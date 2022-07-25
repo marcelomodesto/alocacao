@@ -149,8 +149,8 @@ class RoomController extends Controller
         }
 
         foreach(CourseInformation::$codtur_by_course as $sufixo_codtur=>$course){
-            $turmas = SchoolClass::whereBelongsTo($schoolterm)->whereHas("courseinformations", function($query){
-                                        $query->whereIn("numsemidl",[1,2])->where("tipobg","O");
+            $turmas = SchoolClass::whereBelongsTo($schoolterm)->whereHas("courseinformations", function($query)use($course){
+                                        $query->whereIn("numsemidl",[1,2])->where("tipobg","O")->where("nomcur", $course["nomcur"]);
                                     })->where("codtur","like","%".$sufixo_codtur)->get();
                                     
             $ps = Priority::whereHas("schoolclass",function($query)use($turmas){

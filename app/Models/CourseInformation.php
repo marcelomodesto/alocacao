@@ -37,31 +37,58 @@ class CourseInformation extends Model
         "48"=>["nomcur"=>"Matemática Licenciatura", "perhab"=>"noturno", "grupo"=>"B", "codcur"=>"45024"],
     ];
 
-    public static function getFromReplicadoByCoddis($coddis)
+    public static function getFromReplicadoBySchoolClass($schoolclass)
     {
-
         $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.perhab, GC.tipobg";
-        $query .= " FROM UNIDADE AS U, SETOR AS S, PREFIXODISCIP AS PD, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
-        $query .= " WHERE (U.sglund LIKE :sglund)";
-        $query .= " AND S.codund = U.codund";
-        $query .= " AND PD.codset = S.codset";
-        $query .= " AND CS.codclg = PD.codclg";
-        $query .= " AND HGR.codcur = CS.codcur";
+        $query .= " FROM HABILTURMA AS HT, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
+        $query .= " WHERE (HT.coddis = :coddis)";
+        $query .= " AND HT.codtur LIKE :codtur";
+        $query .= " AND HT.verdis = (SELECT MAX(HT2.verdis) 
+                                    FROM HABILTURMA AS HT2 
+                                    WHERE HT2.coddis = :coddis)";
+        $query .= " AND CS.codcur = HT.codcur";
+        $query .= " AND HGR.codcur = HT.codcur";
+        $query .= " AND HGR.codhab = HT.codhab";
         $query .= " AND HGR.dtadtvhab IS NULL";
-        $query .= " AND CGR.codcur = CS.codcur";
-        $query .= " AND CGR.codhab = HGR.codhab";
+        $query .= " AND CGR.codcur = HT.codcur";
+        $query .= " AND CGR.codhab = HT.codhab";
         $query .= " AND CGR.sitcrl = :sitcrl";
         $query .= " AND GC.codcrl = CGR.codcrl";
-        $query .= " AND GC.coddis = :coddis";
-        $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
-                                    FROM GRADECURRICULAR AS GC2 
-                                    WHERE GC2.coddis = :coddis)";
+        $query .= " AND GC.coddis = HT.coddis";
+        $query .= " AND GC.verdis = HT.verdis";
         $param = [
-            'sglund' => env("UNIDADE"),
-            'coddis' => $coddis,
+            'coddis' => $schoolclass->coddis,
+            'codtur' => $schoolclass->codtur,
             'sitcrl' => "AT",
         ];
 
-        return array_unique(DB::fetchAll($query, $param),SORT_REGULAR);
+        $res = DB::fetchAll($query, $param);
+
+        if(!$res and in_array(substr($schoolclass->codtur,-2,2),array_keys(self::$codtur_by_course))){
+            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.perhab, GC.tipobg";
+            $query .= " FROM CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
+            $query .= " WHERE (GC.coddis = :coddis)";
+            $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
+                                        FROM GRADECURRICULAR AS GC2 
+                                        WHERE GC2.coddis = :coddis)";
+            $query .= " AND CGR.codcrl = GC.codcrl";
+            $query .= " AND CGR.codcur = :codcur";
+            $query .= " AND CGR.sitcrl = :sitcrl";
+            $query .= " AND HGR.codcur = :codcur";
+            $query .= " AND HGR.codhab = CGR.codhab";
+            $query .= " AND HGR.perhab = :perhab";
+            $query .= " AND HGR.dtadtvhab IS NULL";
+            $query .= " AND CS.codcur = :codcur";
+            $param = [
+                'coddis' => $schoolclass->coddis,
+                'codcur' => self::$codtur_by_course[substr($schoolclass->codtur,-2,2)]["codcur"],
+                'perhab' => self::$codtur_by_course[substr($schoolclass->codtur,-2,2)]["perhab"],
+                'sitcrl' => "AT",
+            ];
+
+            $res = DB::fetchAll($query, $param);
+        }
+
+        return array_unique($res,SORT_REGULAR);
     }
 }
