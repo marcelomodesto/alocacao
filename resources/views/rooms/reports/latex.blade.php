@@ -53,11 +53,12 @@
 \pagebreak
 \end{titlepage}
 @foreach(App\Models\CourseInformation::$codtur_by_course as $course)
-  @foreach([0,1] as $x)
+  @foreach([0,1,2] as $x)
     @php
       $semestres = $schoolterm->period == "1° Semestre" ? [1+$x*4,3+$x*4] : [2+$x*4,4+$x*4];
       $tem_turma = App\Models\SchoolClass::whereBelongsTo($schoolterm)
-                  ->whereHas("courseinformations", function($query)use($semestres, $course){$query->whereIn("numsemidl",$semestres)->where("codcur",$course["codcur"])->where("perhab", $course["perhab"]);})->get()->isNotEmpty();
+                  ->whereHas("courseinformations", function($query)use($semestres, $course){$query->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"]);})->get()->isNotEmpty();
+      $linhas = 0;
     @endphp
     @if($tem_turma)
       \section*{{!! $course["nomcur"] !!}}
@@ -67,13 +68,19 @@
         Período: & \textbf{{!! ucfirst($course["perhab"]) !!}}
       \end{tabular}
 
-      \begin{longtable}{ |>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}|>{\centering\arraybackslash}m{2.2cm}| }
-        \hline
-          Turmas & Horário & Seg & Ter & Qua & Qui & Sex\\
+      \begin{longtable}{ |>{\centering\arraybackslash}m{1.8cm}|>{\centering\arraybackslash}m{1.5cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}| }
+      \toprule
+      \makecell{Semestre\\Ideal} & Horário & Seg & Ter & Qua & Qui & Sex\\
+      \midrule
+      \endfirsthead
+      \toprule
+      \makecell{Semestre\\Ideal} & Horário & Seg & Ter & Qua & Qui & Sex\\
+      \midrule
+      \endhead
         @foreach($semestres as $semestre)
           @php
             $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
-              ->whereHas("courseinformations", function($query)use($semestre, $course){$query->where("numsemidl",$semestre)->where("codcur",$course["codcur"])->where("perhab", $course["perhab"]);})->get();
+              ->whereHas("courseinformations", function($query)use($semestre, $course){$query->where("numsemidl",$semestre)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"]);})->get();
 
             $dias = ['seg', 'ter', 'qua', 'qui', 'sex'];  
 
@@ -84,56 +91,109 @@
                         "19:20 às 21:00"=>false,
                         "21:10 às 22:50"=>false];
             
+            $linhas_s = 0;
             foreach($horarios as $h=>$value){
+              $linhas_h = 0;
               foreach($turmas as $turma){
                 if($turma->classschedules()->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty()){
                   $horarios[$h] = true;
                 }
               }
-            }
-          @endphp
-          \hline
-          \multirow{{!! count(array_filter($horarios))*2 !!}}{*}{\makecell{{!! $semestre !!}°\\Semestre}}
-          @foreach($horarios as $h=>$show)
-            @if($show)
-              &\makecell{{!! explode(" ",$h)[0] !!}\\{!! explode(" ",$h)[1] !!}\\{!! explode(" ",$h)[2] !!}} 
-              @foreach($dias as $dia)
-                &
-                \makecell{
-                  @foreach($turmas as $turma)
-                      @if($turma->classschedules()->where("diasmnocp",$dia)->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty())
-                        @if($turma->fusion()->exists())
-                          {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
-                        @else
-                          {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
-                        @endif
-                      @endif
-                  @endforeach
+              foreach($dias as $dia){
+                if($turmas->filter(function($turma)use($dia, $h){return $turma->classschedules()->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->where("diasmnocp",$dia)->exists();})->count()*2 > $linhas_h){
+                  $linhas_h = $turmas->filter(function($turma)use($dia, $h){return $turma->classschedules()->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->where("diasmnocp",$dia)->exists();})->count()*2;
                 }
-              @endforeach
-              \\ 
-              \cline{2-7}
+              }
+              if($linhas_h){
+                $linhas_s += max(3,$linhas_h);
+              }
+            }
+            $linhas += $linhas_s;
+          @endphp
+          @if($turmas->isNotEmpty())
+            @if($linhas >36)
+              \pagebreak
             @endif
-          @endforeach
-          \hline
+            \hline
+          \multirow{{!! $linhas_s !!}}{*}{\makecell{{!! $semestre !!}°\\Semestre}}
+            @foreach($horarios as $h=>$show)
+              @if($show)
+                &\makecell{{!! explode(" ",$h)[0] !!}\\{!! explode(" ",$h)[1] !!}\\{!! explode(" ",$h)[2] !!}} 
+                @foreach($dias as $dia)
+                  &
+                  \makecell{
+                    @foreach($turmas as $turma)
+                        @if($turma->classschedules()->where("diasmnocp",$dia)->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty())
+                          @if($turma->fusion()->exists())
+                            {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
+                          @else
+                            {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
+                          @endif
+                        @endif
+                    @endforeach
+                  }
+                @endforeach
+                \\ 
+                \cline{2-7}
+              @endif
+            @endforeach
+            \hline
+          @endif
         @endforeach
       \end{longtable}
 
       @php
         $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
-          ->whereHas("courseinformations", function($query)use($semestres, $course){$query->whereIn("numsemidl",$semestres)->where("codcur",$course["codcur"])->where("perhab", $course["perhab"]);})->get()->sortBy("nomdis");
+          ->whereHas("courseinformations", function($query)use($semestres, $course){$query->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"]);})->get()->sortBy("nomdis");
+        $habs = [];
+        foreach($turmas as $turma){
+          $habs = array_merge($habs, array_column($turma->courseinformations()->select(["codhab"])->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"])->get()->toArray(),"codhab"));
+        }
+        $mais_de_uma_hab = count(array_unique($habs)) > 1 ? true : false;
       @endphp
 
-      \begin{tabular}{ c | >{\raggedright}m{9.5cm} | c | c }
-      \multicolumn{1}{>{\centering\arraybackslash}m{23mm}|}{\textbf{Código}} & 
-      \multicolumn{1}{c|}{\textbf{Nome da Disciplina}} & 
-      \multicolumn{1}{c|}{\textbf{Sala}} & 
-      \multicolumn{1}{>{\centering\arraybackslash}m{23mm}}{\textbf{Turma}} \\
-      \hline
+      \begin{footnotesize}
+      \begin{longtable}{ >{\centering\arraybackslash}m{1.5cm} | >{\raggedright}m{8.5cm} | >{\raggedright}m{2.8cm} | >{\centering\arraybackslash}m{1.2cm} | >{\centering\arraybackslash}m{1.2cm} }
+      \multicolumn{1}{>{\centering\arraybackslash}m{1.5cm}|}{\textbf{Código}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{8.5cm}|}{\textbf{Nome da Disciplina}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{2.8cm}|}{\textbf{Tipo}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}|}{\textbf{Sala}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}}{\textbf{Turma}} \\
+      \midrule
+      \endfirsthead
+      \multicolumn{1}{>{\centering\arraybackslash}m{1.5cm}|}{\textbf{Código}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{8.5cm}|}{\textbf{Nome da Disciplina}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{2.8cm}|}{\textbf{Tipo}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}|}{\textbf{Sala}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}}{\textbf{Turma}} \\
+      \midrule
+      \endhead
+        \hline
         @foreach($turmas as $turma)
-          {!! $turma->coddis !!} & 
+          {!! $turma->coddis !!}& 
           \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->nomdis !!}} 
           & 
+          @php  
+            $tipobg = $turma->courseinformations()->select(["codhab","tipobg"])->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"])->get()->sortBy("codhab")->toArray();
+
+            foreach($tipobg as $key=>$value){
+              unset($tipobg[$key]["pivot"]);
+            }
+
+            $tipobg = array_unique($tipobg, SORT_REGULAR);
+
+            $tipos = ["L"=>"Livre","O"=>"Obrigatória","C"=>"Eletiva"];
+          @endphp
+          \makecell[l]{
+            @foreach($tipobg as $t)
+              @if($mais_de_uma_hab)
+                hab {!! $t["codhab"] !!} {!! $tipos[$t["tipobg"]] !!}\\
+              @else
+                {!! $tipos[$t["tipobg"]] !!}\\
+              @endif
+            @endforeach
+          }
+          &
           @if($turma->fusion()->exists()) 
             {!! $turma->fusion->master->room()->exists() ? $turma->fusion->master->room->nome : "Sem Sala" !!}
           @else
@@ -143,7 +203,8 @@
           {!! "T.".substr($turma->codtur,-2,2) !!} \\
           \hline
         @endforeach
-      \end{tabular}
+      \end{longtable}
+      \end{footnotesize}
     \pagebreak
     @endif
   @endforeach

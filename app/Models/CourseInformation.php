@@ -18,6 +18,7 @@ class CourseInformation extends Model
         'codcur',
         'numsemidl',
         'perhab',
+        'codhab',
         'tipobg',
     ];
 
@@ -39,7 +40,7 @@ class CourseInformation extends Model
 
     public static function getFromReplicadoBySchoolClass($schoolclass)
     {
-        $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.perhab, GC.tipobg";
+        $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.perhab, GC.tipobg";
         $query .= " FROM HABILTURMA AS HT, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
         $query .= " WHERE (HT.coddis = :coddis)";
         $query .= " AND HT.codtur LIKE :codtur";
@@ -65,7 +66,7 @@ class CourseInformation extends Model
         $res = DB::fetchAll($query, $param);
 
         if(!$res and in_array(substr($schoolclass->codtur,-2,2),array_keys(self::$codtur_by_course))){
-            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.perhab, GC.tipobg";
+            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.perhab, GC.tipobg";
             $query .= " FROM CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
             $query .= " WHERE (GC.coddis = :coddis)";
             $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 

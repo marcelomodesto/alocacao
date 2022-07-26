@@ -20,6 +20,7 @@ class CreateCourseInformationTable extends Migration
             $table->string('codcur');
             $table->string('numsemidl');
             $table->string('perhab');
+            $table->string('codhab');
             $table->string('tipobg');
         });
     }
