@@ -52,7 +52,7 @@
 \thispagestyle{empty}
 \pagebreak
 \end{titlepage}
-@foreach(App\Models\CourseInformation::$codtur_by_course as $course)
+@foreach(App\Models\CourseInformation::$codtur_by_course as $sufixo_codtur=>$course)
   @foreach([0,1,2] as $x)
     @php
       $semestres = $schoolterm->period == "1° Semestre" ? [1+$x*4,3+$x*4] : [2+$x*4,4+$x*4];
@@ -66,6 +66,9 @@
       \begin{tabular}{ l l }
         Código: & \textbf{{!! $course["codcur"] !!} } \\
         Período: & \textbf{{!! ucfirst($course["perhab"]) !!}}
+        @if(in_array("grupo",array_keys($course)))
+          \\\textbf{Grupo {!! $course["grupo"] !!}} &
+        @endif
       \end{tabular}
 
       \begin{longtable}{ |>{\centering\arraybackslash}m{1.8cm}|>{\centering\arraybackslash}m{1.5cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}|>{\centering\arraybackslash}m{2.3cm}| }
@@ -81,6 +84,38 @@
           @php
             $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
               ->whereHas("courseinformations", function($query)use($semestre, $course){$query->where("numsemidl",$semestre)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"]);})->get();
+            
+            if(in_array("grupo",array_keys($course))){
+              if($course["grupo"]=="A"){
+                $turmas = $turmas->filter(function($turma)use($turmas, $schoolterm){
+                  $codturs = $turmas->where("coddis",$turma->coddis)->pluck("codtur")->toArray();
+                  $prefixo_codtur = $schoolterm->year.($schoolterm->period == "1° Semestre" ? "1" : "2");
+                  if(in_array($prefixo_codtur."47", $codturs) and in_array($prefixo_codtur."48", $codturs)){
+                    if(substr($turma->codtur,-2,2)!="48"){
+                      return true;
+                    }else{
+                      return false;
+                    }
+                  }else{
+                    return true;
+                  }
+                });
+              }elseif($course["grupo"]=="B"){
+                $turmas = $turmas->filter(function($turma)use($turmas, $schoolterm){
+                  $codturs = $turmas->where("coddis",$turma->coddis)->pluck("codtur")->toArray();
+                  $prefixo_codtur = $schoolterm->year.($schoolterm->period == "1° Semestre" ? "1" : "2");
+                  if(in_array($prefixo_codtur."47", $codturs) and in_array($prefixo_codtur."48", $codturs)){
+                    if(substr($turma->codtur,-2,2)!="47"){
+                      return true;
+                    }else{
+                      return false;
+                    }
+                  }else{
+                    return true;
+                  }
+                });
+              }
+            }
 
             $dias = ['seg', 'ter', 'qua', 'qui', 'sex'];  
 
@@ -141,6 +176,39 @@
       @php
         $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
           ->whereHas("courseinformations", function($query)use($semestres, $course){$query->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"]);})->get()->sortBy("nomdis");
+
+        if(in_array("grupo",array_keys($course))){
+            if($course["grupo"]=="A"){
+              $turmas = $turmas->filter(function($turma)use($turmas, $schoolterm){
+                $codturs = $turmas->where("coddis",$turma->coddis)->pluck("codtur")->toArray();
+                $prefixo_codtur = $schoolterm->year.($schoolterm->period == "1° Semestre" ? "1" : "2");
+                if(in_array($prefixo_codtur."47", $codturs) and in_array($prefixo_codtur."48", $codturs)){
+                  if(substr($turma->codtur,-2,2)!="48"){
+                    return true;
+                  }else{
+                    return false;
+                  }
+                }else{
+                  return true;
+                }
+              });
+            }elseif($course["grupo"]=="B"){
+              $turmas = $turmas->filter(function($turma)use($turmas, $schoolterm){
+                $codturs = $turmas->where("coddis",$turma->coddis)->pluck("codtur")->toArray();
+                $prefixo_codtur = $schoolterm->year.($schoolterm->period == "1° Semestre" ? "1" : "2");
+                if(in_array($prefixo_codtur."47", $codturs) and in_array($prefixo_codtur."48", $codturs)){
+                  if(substr($turma->codtur,-2,2)!="47"){
+                    return true;
+                  }else{
+                    return false;
+                  }
+                }else{
+                  return true;
+                }
+              });
+            }
+          }
+
         $habs = [];
         foreach($turmas as $turma){
           $habs = array_merge($habs, array_column($turma->courseinformations()->select(["codhab"])->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"])->get()->toArray(),"codhab"));
