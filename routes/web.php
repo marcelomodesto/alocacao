@@ -6,6 +6,7 @@ use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\FusionController;
+use App\Http\Controllers\MonitorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,3 +40,5 @@ Route::get('/rooms/dissociate/{schoolclass}', [RoomController::class, 'dissociat
 Route::resource('rooms', RoomController::class);
 
 Route::resource('fusions', FusionController::class);
+
+Route::get('/monitor/getImportProcess', [MonitorController::class, 'getImportProcess']);

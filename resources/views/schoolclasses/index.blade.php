@@ -103,3 +103,42 @@
     </div>
 </div>
 @endsection
+
+@section('javascripts_bottom')
+@parent
+<script>
+$( function() {       
+    function progress() {
+        $.ajax({
+            url: window.location.origin+'/monitor/getImportProcess',
+            dataType: 'json',
+            success: function success(json){
+                if('progress' in json){
+                    if(!json["failed"]){
+                        if(document.getElementById('progressbar')){
+                            $( "#progressbar" ).progressbar( "value", json['progress'] );
+                        }else if(json['progress'] != 100){
+                            $('#progressbar-div').append("<div id='progressbar'><div class='progress-label'></div></div>");
+                            var progressbar = $( "#progressbar" ),
+                            progressLabel = $( ".progress-label" );
+                            progressbar.progressbar({
+                                value: false,
+                                change: function() {
+                                    progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+                                },
+                                complete: function() {
+                                    location.replace(location);
+                                    window.clearTimeout(timeouthandle);
+                                }
+                            });
+                        }
+                    }
+                }
+                var timeouthandle = setTimeout( progress, 1000);
+            }
+        });
+    }        
+    setTimeout( progress, 50 );
+});
+</script>
+@endsection

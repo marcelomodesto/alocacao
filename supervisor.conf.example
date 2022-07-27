@@ -1,0 +1,10 @@
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php {aqui vai o caminho para o diretorio do projeto}/artisan queue:work --tries=3
+autostart=true
+autorestart=true
+user=root
+startsecs=0
+numprocs=8
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/laravel-queue.log
