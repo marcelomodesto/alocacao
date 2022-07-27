@@ -127,8 +127,9 @@ $( function() {
                                     progressLabel.text( progressbar.progressbar( "value" ) + "%" );
                                 },
                                 complete: function() {
-                                    location.replace(location);
+                                    $( "#progressbar" ).remove();
                                     window.clearTimeout(timeouthandle);
+                                    location.replace(location);
                                 }
                             });
                         }
