@@ -133,7 +133,7 @@ class RoomController extends Controller
 
         return (new LaraTeX('rooms.reports.latex'))->with([
             'schoolterm' => SchoolTerm::getLatest(),
-        ])->download('relatorio.pdf');
+        ])->compileAmount(2)->download('relatorio.pdf');
     }
 
     public function distributes()

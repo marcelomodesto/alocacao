@@ -84,21 +84,19 @@
 
             $dias = ['seg', 'ter', 'qua', 'qui', 'sex'];  
 
-            $horarios = ["08:00 às 09:40"=>false,
-                        "10:00 às 11:40"=>false,
-                        "14:00 às 15:40"=>false,
-                        "16:00 às 17:40"=>false,
-                        "19:20 às 21:00"=>false,
-                        "21:10 às 22:50"=>false];
+            $schedules = array_unique(App\Models\ClassSchedule::whereHas("schoolclasses", function($query)use($turmas){$query->whereIn("id",$turmas->pluck("id")->toArray());})->select(["horent","horsai"])->whereNotIn("diasmnocp", ["sab","dom"])->get()->toArray(),SORT_REGULAR);
+
+            array_multisort(array_column($schedules, "horent"), SORT_ASC, $schedules);
+
+            $horarios = [];
+            foreach($schedules as $schedule){
+              array_push($horarios, $schedule["horent"]." às ".$schedule["horsai"])
+              ;
+            }
             
             $linhas_s = 0;
-            foreach($horarios as $h=>$value){
+            foreach($horarios as $h){
               $linhas_h = 0;
-              foreach($turmas as $turma){
-                if($turma->classschedules()->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty()){
-                  $horarios[$h] = true;
-                }
-              }
               foreach($dias as $dia){
                 if($turmas->filter(function($turma)use($dia, $h){return $turma->classschedules()->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->where("diasmnocp",$dia)->exists();})->count()*2 > $linhas_h){
                   $linhas_h = $turmas->filter(function($turma)use($dia, $h){return $turma->classschedules()->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->where("diasmnocp",$dia)->exists();})->count()*2;
@@ -116,26 +114,24 @@
             @endif
             \hline
           \multirow{{!! $linhas_s !!}}{*}{\makecell{{!! $semestre !!}°\\Semestre}}
-            @foreach($horarios as $h=>$show)
-              @if($show)
-                &\makecell{{!! explode(" ",$h)[0] !!}\\{!! explode(" ",$h)[1] !!}\\{!! explode(" ",$h)[2] !!}} 
-                @foreach($dias as $dia)
-                  &
-                  \makecell{
-                    @foreach($turmas as $turma)
-                        @if($turma->classschedules()->where("diasmnocp",$dia)->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty())
-                          @if($turma->fusion()->exists())
-                            {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
-                          @else
-                            {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
-                          @endif
+            @foreach($horarios as $h)
+              &\makecell{{!! explode(" ",$h)[0] !!}\\{!! explode(" ",$h)[1] !!}\\{!! explode(" ",$h)[2] !!}} 
+              @foreach($dias as $dia)
+                &
+                \makecell{
+                  @foreach($turmas as $turma)
+                      @if($turma->classschedules()->where("diasmnocp",$dia)->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty())
+                        @if($turma->fusion()->exists())
+                          {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
+                        @else
+                          {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
                         @endif
-                    @endforeach
-                  }
-                @endforeach
-                \\ 
-                \cline{2-7}
-              @endif
+                      @endif
+                  @endforeach
+                }
+              @endforeach
+              \\ 
+              \cline{2-7}
             @endforeach
             \hline
           @endif
