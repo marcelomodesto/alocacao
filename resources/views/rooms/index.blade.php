@@ -9,11 +9,14 @@
         <div class="col-md-12">
             <h1 class='text-center mb-5'>Salas</h1>
 
+            <div id="progressbar-div">
+            </div>
+            <br>
             @if (count($salas) > 0)
                 <div class="d-flex justify-content-center">
                     <div class="col-md-6">
                         <div class="float-right" style="margin-bottom: 20px;">
-                            <form style="display: inline;"  action="{{ route('rooms.report') }}" method="POST"
+                            <form style="display: inline;"  action="{{ route('rooms.makeReport') }}" method="GET"
                             enctype="multipart/form-data"
                             >
                                 @csrf
@@ -110,4 +113,44 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('javascripts_bottom')
+@parent
+<script>
+$( function() {       
+    function progress() {
+        $.ajax({
+            url: window.location.origin+'/monitor/getReportProcess',
+            dataType: 'json',
+            success: function success(json){
+                if('progress' in json){
+                    if(!json["failed"]){
+                        if(document.getElementById('progressbar')){
+                            $( "#progressbar" ).progressbar( "value", json['progress'] );
+                        }else if(json['progress'] != 100){
+                            $('#progressbar-div').append("<div id='progressbar'><div class='progress-label'></div></div>");
+                            var progressbar = $( "#progressbar" ),
+                            progressLabel = $( ".progress-label" );
+                            progressbar.progressbar({
+                                value: false,
+                                change: function() {
+                                    progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+                                },
+                                complete: function() {
+                                    $( "#progressbar" ).remove();
+                                    window.clearTimeout(timeouthandle);
+                                    location.replace(window.location.origin+'/rooms/downloadReport');
+                                }
+                            });
+                        }
+                    }
+                }
+                var timeouthandle = setTimeout( progress, 1000);
+            }
+        });
+    }        
+    setTimeout( progress, 50 );
+});
+</script>
 @endsection

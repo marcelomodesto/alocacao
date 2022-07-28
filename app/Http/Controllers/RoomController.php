@@ -11,6 +11,10 @@ use App\Models\CourseInformation;
 use App\Http\Requests\CompatibleRoomRequest;
 use App\Http\Requests\AllocateRoomRequest;
 use Ismaelw\LaraTeX\LaraTeX;
+use App\Jobs\ProcessReport;
+use romanzipp\QueueMonitor\Models\Monitor;
+use Illuminate\Support\Facades\Storage;
+
 
 class RoomController extends Controller
 {
@@ -128,11 +132,22 @@ class RoomController extends Controller
         return back();
     }
 
-    public function report()
+    public function makeReport()
     {
-        return (new LaraTeX('rooms.reports.latex'))->with([
-            'schoolterm' => SchoolTerm::getLatest(),
-        ])->download('relatorio.pdf');
+        ProcessReport::dispatch();
+
+        return back();
+    }
+
+    public function downloadReport()
+    {
+        $job = Monitor::where("name","App\Jobs\ProcessReport")->latest("started_at")->first();
+
+        $file = json_decode($job->data)->fileName;
+
+        $job->delete();
+
+        return Storage::download($file);
     }
 
     public function distributes()

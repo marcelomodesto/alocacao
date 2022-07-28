@@ -34,7 +34,8 @@ Route::resource('schoolclasses', SchoolClassController::class);
 
 Route::resource('instructors', InstructorController::class);
 
-Route::post('/rooms/report', [RoomController::class, 'report'])->name('rooms.report');
+Route::get('/rooms/makeReport', [RoomController::class, 'makeReport'])->name('rooms.makeReport');
+Route::get('/rooms/downloadReport', [RoomController::class, 'downloadReport'])->name('rooms.downloadReport');
 Route::patch('/rooms/{room}/allocate', [RoomController::class, 'allocate'])->name('rooms.allocate');
 Route::get('/rooms/compatible', [RoomController::class, 'compatible'])->name('rooms.compatible');
 Route::patch('/rooms/distributes', [RoomController::class, 'distributes'])->name('rooms.distributes');
@@ -44,3 +45,4 @@ Route::resource('rooms', RoomController::class);
 Route::resource('fusions', FusionController::class);
 
 Route::get('/monitor/getImportProcess', [MonitorController::class, 'getImportProcess']);
+Route::get('/monitor/getReportProcess', [MonitorController::class, 'getReportProcess']);
