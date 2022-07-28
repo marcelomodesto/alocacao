@@ -85,6 +85,21 @@
             $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
               ->whereHas("courseinformations", function($query)use($semestre, $course){$query->where("numsemidl",$semestre)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"]);})->get();
             
+            $turmas = $turmas->filter(function($turma)use($turmas){
+              if($turma->externa){
+                $conflict = false;
+                foreach($turmas->filter(function($turma){return !$turma->externa;}) as $turma_interna){
+                  if($turma->isInConflict($turma_interna)){
+                    $conflict = true;
+                  }
+                }
+                return !$conflict;
+              }else{
+                return true;
+              }
+            });
+
+
             if(in_array("grupo",array_keys($course))){
               if($course["grupo"]=="A"){
                 $turmas = $turmas->filter(function($turma)use($turmas, $schoolterm){

@@ -61,17 +61,17 @@
                                 >
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a class="text-dark text-decoration-none"
-                                    data-toggle="modal"
-                                    data-target="#removalModal"
-                                    title="Remover"
-                                    href="{{ route(
-                                        'schoolclasses.destroy',
-                                        $turma
-                                    ) }}"
-                                >
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
+                                <form id="deleteForm" method="post" action="{{ route('schoolclasses.destroy',$turma) }}" target="_blank">
+                                    @method('delete')
+                                    @csrf
+                                    <a class="text-dark text-decoration-none"
+                                        title="Remover"
+                                        onclick="document.getElementById('deleteForm').submit(); return false;"
+                                        
+                                    >
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </form>
                             </td>
                         </tr>
                     @endforeach

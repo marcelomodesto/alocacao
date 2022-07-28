@@ -21,7 +21,7 @@ class CreateSchoolClassesTable extends Migration
             $table->string('tiptur')->nullable();
             $table->string('nomdis')->nullable();
             $table->integer('estmtr')->unsigned()->nullable();
-            $table->string('externa')->default("Não");
+            $table->boolean('externa')->default(0);
             $table->timestamp('dtainitur')->nullable();
             $table->timestamp('dtafimtur')->nullable();
             $table->unsignedBigInteger('school_term_id');

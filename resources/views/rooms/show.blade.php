@@ -178,7 +178,7 @@
             @endif
             
             @php
-                $turmas_nao_alocadas = App\Models\SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")->get();
+                $turmas_nao_alocadas = App\Models\SchoolClass::whereBelongsTo($st)->where("externa", false)->whereDoesntHave("room")->whereDoesntHave("fusion")->get();
                 $dobradinhas_nao_alocadas = App\Models\Fusion::whereHas("schoolclasses", function ($query) use ($st){
                                                     $query->whereBelongsTo($st);
                                                 })->whereHas("master", function ($query){

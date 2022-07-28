@@ -178,16 +178,16 @@ class SchoolClass extends Model
             '2° Semestre' => '2',
         ];
         $schoolclasses = [];
-        foreach($disciplinas as $disc){
-            $codtur = $schoolTerm->year;
-            $codtur .= $periodo[$schoolTerm->period] . '%';
-            $coddis = $disc['coddis'];
+        $codtur = $schoolTerm->year.$periodo[$schoolTerm->period] . '%';
 
+        foreach($disciplinas as $disc){
+            $coddis = $disc['coddis'];
 
             $query = " SELECT T.codtur, T.coddis, D.nomdis, T.dtainitur, T.dtafimtur, DC.pfxdisval";
             $query .= " FROM TURMAGR AS T, DISCIPLINAGR AS D, DISCIPGRCODIGO AS DC";
             $query .= " WHERE (T.coddis = :coddis)";
             $query .= " AND T.codtur LIKE :codtur";
+            $query .= " AND T.statur = :statur";
             $query .= " AND T.verdis = (SELECT MAX(T.verdis) 
                                         FROM TURMAGR AS T 
                                         WHERE T.coddis = :coddis)";
@@ -197,6 +197,7 @@ class SchoolClass extends Model
             $param = [
                 'coddis' => $coddis,
                 'codtur' => $codtur,
+                'statur' => "A",
             ];
 
             $turmas = DB::fetchAll($query, $param);
@@ -208,6 +209,7 @@ class SchoolClass extends Model
                 $turmas[$key]['dtainitur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtainitur"])->format("d/m/Y");
                 $turmas[$key]['dtafimtur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtafimtur"])->format("d/m/Y");
                 $turmas[$key]['tiptur'] = "Graduação";
+                $turmas[$key]['externa'] = false;
                 unset($turmas[$key]['pfxdisval']);
 
             }
@@ -215,12 +217,12 @@ class SchoolClass extends Model
         }
 
         foreach(CourseInformation::$codtur_by_course as $sufixo_codtur=>$course){
-            $codtur = $schoolTerm->year . $periodo[$schoolTerm->period] . $sufixo_codtur;
             foreach(SELF::getExternalDisciplinesFromReplicadoByCourse($course) as $coddis){
                 $query = " SELECT T.codtur, T.coddis, D.nomdis, T.dtainitur, T.dtafimtur";
                 $query .= " FROM TURMAGR AS T, DISCIPLINAGR AS D, DISCIPGRCODIGO AS DC";
                 $query .= " WHERE (T.coddis = :coddis)";
                 $query .= " AND T.codtur LIKE :codtur";
+                $query .= " AND T.statur = :statur";
                 $query .= " AND T.verdis = (SELECT MAX(T.verdis) 
                                             FROM TURMAGR AS T 
                                             WHERE T.coddis = :coddis)";
@@ -230,6 +232,7 @@ class SchoolClass extends Model
                 $param = [
                     'coddis' => $coddis,
                     'codtur' => $codtur,
+                    'statur' => "A",
                 ];
 
                 $turmas = DB::fetchAll($query, $param);
@@ -241,7 +244,7 @@ class SchoolClass extends Model
                     $turmas[$key]['dtainitur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtainitur"])->format("d/m/Y");
                     $turmas[$key]['dtafimtur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtafimtur"])->format("d/m/Y");
                     $turmas[$key]['tiptur'] = "Graduação";
-                    $turmas[$key]['externa'] = "Sim";
+                    $turmas[$key]['externa'] = true;
     
                 }
                 $schoolclasses = array_merge($schoolclasses, $turmas);
@@ -286,6 +289,7 @@ class SchoolClass extends Model
             $turmas[$key]['dtafimtur'] = Carbon::createFromFormat("Y-m-d H:i:s", $turma["dtafimtur"])->format("d/m/Y");
             $turmas[$key]['tiptur'] = "Pós Graduação";
             $turmas[$key]['codtur'] = $schoolTerm->year . $periodo[$schoolTerm->period] . $turmas[$key]['numseqdis'] . $turmas[$key]['numofe'];
+            $turmas[$key]['externa'] = false;
             unset($turmas[$key]['numseqdis']);
             unset($turmas[$key]['numofe']);
         }

@@ -161,7 +161,7 @@ class SchoolClassController extends Controller
     {
         $schoolterm = SchoolTerm::getLatest();
 
-        $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->where("externa", "Sim")->get() : [];
+        $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->where("externa", true)->get() : [];
 
         return view('schoolclasses.externals', compact(['turmas', 'schoolterm']));
     }

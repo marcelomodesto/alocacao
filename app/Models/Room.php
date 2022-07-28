@@ -30,6 +30,9 @@ class Room extends Model
 
     public function isCompatible(SchoolClass $t1, $ignore_block=false, $ignore_estmtr=false)
     {
+        if($t1->externa){
+            return false;
+        }
         if(!$ignore_estmtr){
             if($t1->fusion()->exists()){
                 if($t1->fusion->schoolclasses->pluck("estmtr")->filter()->isNotEmpty() and
