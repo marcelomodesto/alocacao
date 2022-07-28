@@ -314,17 +314,17 @@
       @endphp
 
       \begin{footnotesize}
-      \begin{longtable}{ >{\centering\arraybackslash}m{1.5cm} | >{\raggedright}m{8.5cm} | >{\raggedright}m{2.8cm} | >{\centering\arraybackslash}m{1.2cm} | >{\centering\arraybackslash}m{1.2cm} }
+      \begin{longtable}{ >{\centering\arraybackslash}m{1.5cm} | >{\raggedright}m{8.5cm} | >{\raggedright}m{3.2cm} | >{\centering\arraybackslash}m{1.2cm} | >{\centering\arraybackslash}m{1.2cm} }
       \multicolumn{1}{>{\centering\arraybackslash}m{1.5cm}|}{\textbf{Código}} & 
       \multicolumn{1}{>{\centering\arraybackslash}m{8.5cm}|}{\textbf{Nome da Disciplina}} & 
-      \multicolumn{1}{>{\centering\arraybackslash}m{2.8cm}|}{\textbf{Tipo}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{3.2cm}|}{\textbf{Tipo}} & 
       \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}|}{\textbf{Sala}} & 
       \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}}{\textbf{Turma}} \\
       \midrule
       \endfirsthead
       \multicolumn{1}{>{\centering\arraybackslash}m{1.5cm}|}{\textbf{Código}} & 
       \multicolumn{1}{>{\centering\arraybackslash}m{8.5cm}|}{\textbf{Nome da Disciplina}} & 
-      \multicolumn{1}{>{\centering\arraybackslash}m{2.8cm}|}{\textbf{Tipo}} & 
+      \multicolumn{1}{>{\centering\arraybackslash}m{3.2cm}|}{\textbf{Tipo}} & 
       \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}|}{\textbf{Sala}} & 
       \multicolumn{1}{>{\centering\arraybackslash}m{1.2cm}}{\textbf{Turma}} \\
       \midrule
@@ -337,7 +337,7 @@
             \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->nomdis !!}} 
             & 
             @php  
-              $tipobg = $turma->courseinformations()->select(["codhab","tipobg"])->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"])->get()->sortBy("codhab")->toArray();
+              $tipobg = $turma->courseinformations()->select(["codcur","codhab","tipobg"])->whereIn("numsemidl",$semestres)->where("nomcur",$course["nomcur"])->where("perhab", $course["perhab"])->get()->sortBy("codhab")->toArray();
 
               foreach($tipobg as $key=>$value){
                 unset($tipobg[$key]["pivot"]);
@@ -349,10 +349,34 @@
             @endphp
             \makecell[lc]{
               @foreach($tipobg as $t)
-                @if($mais_de_uma_hab)
+                @if($t["codcur"] != $course["codcur"])
+                  @php
+                    $mostrar_cur_ant = true;
+                    foreach($tipobg as $t2){
+                      if($t["codcur"] != $t2["codcur"] and $t["codhab"] == $t2["codhab"] and $t["tipobg"] == $t2["tipobg"]){
+                        $mostrar_cur_ant = false;
+                      }
+                    }
+                  @endphp
+                  @if($mostrar_cur_ant)
+                    Curr. Ant. {!! $tipos[$t["tipobg"]] !!}\\
+                  @endif
+                @elseif($mais_de_uma_hab)
                   hab {!! $t["codhab"] !!} {!! $tipos[$t["tipobg"]] !!}\\
                 @else
-                  {!! $tipos[$t["tipobg"]] !!}\\
+                  @php
+                    $mostrar_cur_nov = false;
+                    foreach($tipobg as $t2){
+                      if($t["codcur"] != $t2["codcur"] and $t["codhab"] == $t2["codhab"] and $t["tipobg"] != $t2["tipobg"]){
+                        $mostrar_cur_nov = true;
+                      }
+                    }
+                  @endphp
+                  @if($mostrar_cur_nov)
+                    Curr. Nov. {!! $tipos[$t["tipobg"]] !!}\\
+                  @else
+                    {!! $tipos[$t["tipobg"]] !!}\\
+                    @endif
                 @endif
               @endforeach
             }
