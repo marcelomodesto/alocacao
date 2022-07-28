@@ -25,6 +25,8 @@ Route::get('/', function () {
 
 Route::resource('schoolterms', SchoolTermController::class);
 
+Route::post('/schoolclasses/makeInternalInBatch', [SchoolClassController::class, 'makeInternalInBatch'])->name('schoolclasses.makeInternalInBatch');
+Route::post('/schoolclasses/destroyInBatch', [SchoolClassController::class, 'destroyInBatch'])->name('schoolclasses.destroyInBatch');
 Route::get('/schoolclasses/externals', [SchoolClassController::class, 'externals'])->name('schoolclasses.externals');
 Route::get('/schoolclasses/search', [SchoolClassController::class, 'search'])->name('schoolclasses.search');
 Route::get('/schoolclasses/import', [SchoolClassController::class, 'import'])->name('schoolclasses.import');

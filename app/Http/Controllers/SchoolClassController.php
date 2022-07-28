@@ -6,6 +6,8 @@ use App\Http\Requests\StoreSchoolClassRequest;
 use App\Http\Requests\UpdateSchoolClassRequest;
 use App\Http\Requests\IndexSchoolClassRequest;
 use App\Http\Requests\CreateSchoolClassRequest;
+use App\Http\Requests\DestroyInBatchSchoolClassRequest;
+use App\Http\Requests\MakeInternalInBatchSchoolClassRequest;
 use App\Models\SchoolClass;
 use App\Models\SchoolTerm;
 use App\Models\Instructor;
@@ -153,6 +155,34 @@ class SchoolClassController extends Controller
         $schoolclass->classschedules()->detach();
         $schoolclass->courseinformations()->detach();
         $schoolclass->delete();
+
+        return back();
+    }
+
+    public function makeInternalInBatch(MakeInternalInBatchSchoolClassRequest $request)
+    {
+        $validated = $request->validated();
+
+        foreach($validated["school_classes_id"] as $id){
+            $schoolclass = SchoolClass::find($id);
+            $schoolclass->externa = false;
+            $schoolclass->save();
+        }
+
+        return back();
+    }
+
+    public function destroyInBatch(DestroyInBatchSchoolClassRequest $request)
+    {
+        $validated = $request->validated();
+
+        foreach($validated["school_classes_id"] as $id){
+            $schoolclass = SchoolClass::find($id);
+            $schoolclass->instructors()->detach();
+            $schoolclass->classschedules()->detach();
+            $schoolclass->courseinformations()->detach();
+            $schoolclass->delete();
+        }
 
         return back();
     }
