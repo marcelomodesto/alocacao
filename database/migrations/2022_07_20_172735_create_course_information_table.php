@@ -21,6 +21,7 @@ class CreateCourseInformationTable extends Migration
             $table->string('numsemidl');
             $table->string('perhab');
             $table->string('codhab');
+            $table->string('nomhab');
             $table->string('tipobg');
         });
     }
