@@ -152,7 +152,6 @@ class SchoolClass extends Model
         $query .= " AND CGR.codhab = HGR.codhab";
         $query .= " AND CGR.sitcrl = :sitcrl";
         $query .= " AND GC.codcrl = CGR.codcrl";
-        $query .= " AND GC.tipobg = :tipobg";
         $query .= " AND DGRC.coddis = GC.coddis";
         $query .= " AND PD.codclg = DGRC.codclg";
         $query .= " AND S.codset = PD.codset";
@@ -162,7 +161,6 @@ class SchoolClass extends Model
             'sglund' => env("UNIDADE"),
             'codcur' => $course["codcur"],
             'perhab' => $course["perhab"],
-            'tipobg' => "O",
             'sitcrl' => "AT",
         ];
 

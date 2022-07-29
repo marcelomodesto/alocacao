@@ -242,12 +242,12 @@
                         @if($turma->classschedules()->where("diasmnocp",$dia)->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty())
                           @if(!$turma->externa)
                             @if($turma->fusion()->exists())
-                              {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
+                            \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->coddis !!}}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->fusion->master->room()->exists() ? "S. ".$turma->fusion->master->room->nome : "Sem Sala") !!}\\
                             @else
-                              {!! $turma->coddis !!}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
+                            \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->coddis !!}}\\{!! "T.".substr($turma->codtur,-2,2) ." ". ($turma->room()->exists() ? "S. ".$turma->room->nome : "Sem Sala") !!}\\
                             @endif
                           @elseif(!in_array($turma->id, $done))
-                            {!! $turma->coddis !!}\\
+                          \href{run:https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=\&sgldis={!! $turma->coddis !!}}{{!! $turma->coddis !!}}\\
                             @php $coddis = $turma->coddis; @endphp
                             @foreach($turmas->filter(function($t)use($coddis){return $t->coddis == $coddis;}) as $turma2)
                               @if($turma2->classschedules()->where("diasmnocp",$dia)->where("horent",explode(" ",$h)[0])->where("horsai",explode(" ",$h)[2])->get()->isNotEmpty())
