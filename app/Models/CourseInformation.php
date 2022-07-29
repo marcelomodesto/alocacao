@@ -28,6 +28,7 @@ class CourseInformation extends Model
         return $this->belongsToMany(SchoolClass::class);
     }
 
+    //Foi criado um Model Course com essas informações, assim que possivel remover esse array
     static $codtur_by_course = [
         "43"=>["nomcur"=>"Matemática Bacharelado", "perhab"=>"diurno", "codcur"=>"45031"],
         "45"=>["nomcur"=>"Bacharelado em Ciência da Computação", "perhab"=>"diurno", "codcur"=>"45052"],

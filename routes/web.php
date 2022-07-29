@@ -7,6 +7,7 @@ use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\FusionController;
 use App\Http\Controllers\MonitorController;
+use App\Http\Controllers\CourseScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,3 +47,6 @@ Route::resource('fusions', FusionController::class);
 
 Route::get('/monitor/getImportProcess', [MonitorController::class, 'getImportProcess']);
 Route::get('/monitor/getReportProcess', [MonitorController::class, 'getReportProcess']);
+
+Route::get('/courseschedules', [CourseScheduleController::class, 'index'])->name('courseschedules.index');
+Route::get('/courseschedules/{course}', [CourseScheduleController::class, 'show'])->name('courseschedules.show');

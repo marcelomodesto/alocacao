@@ -29,8 +29,8 @@ $submenu = [
 
 $menu = [
     [
-        'text' => '<i class="fas fa-home"></i> Home',
-        'url' => 'home',
+        'text' => 'Horários das Disciplinas',
+        'url' => config('app.url') . '/courseschedules',
     ],
 ];
 
