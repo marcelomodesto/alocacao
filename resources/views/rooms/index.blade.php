@@ -27,7 +27,7 @@
                                 </button>
                             </form>
                             
-                            <form style="display: inline;" id="distributesSchoolClassesForm" action="{{ route('rooms.distributes') }}" method="POST"
+                            <form id="distributesForm" style="display: inline;" id="distributesSchoolClassesForm" action="{{ route('rooms.distributes') }}" method="POST"
                             enctype="multipart/form-data"
                             >
                                 @method('patch')
@@ -44,8 +44,9 @@
 
                     <table class="table table-bordered table-striped table-hover" style="font-size:15px;">
                         <tr>
-                            <th>Nome</th>
-                            <th>Assentos</th>
+                            <th style="vertical-align: middle;">Nome</th>
+                            <th style="vertical-align: middle;">Assentos</th>
+                            <th>Distribuir<br>nas<br>Salas</th>
                             <th></th>
                         </tr>
 
@@ -94,6 +95,9 @@
                                     }
                                     
                                 @endphp
+                                <td>
+                                    <input id="rooms_id" form="distributesForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" {!! !in_array($sala->nome, ["B05","B04"]) ? 'checked' : '' !!}>
+                                </td>
                                 <td class="text-center" style="white-space: nowrap;">
                                     <a  class="btn btn-outline-dark btn-sm"
                                         data-toggle="tooltip" data-placement="top"

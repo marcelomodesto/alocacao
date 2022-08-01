@@ -45,9 +45,9 @@ class Room extends Model
                 }
             }
         }
+        // Excepcionalmente por conta da reforma no bloco B as turmas da graduação serão alocadas no bloco A
         if(!$ignore_block){
-            if(($t1->tiptur=="Graduação" and $this->nome[0]=="A") or 
-                ($t1->tiptur=="Pós Graduação" and $this->nome[0]=="B")){
+            if($t1->tiptur=="Pós Graduação" and $this->nome[0]=="B"){
                 return false;
             }
         }
