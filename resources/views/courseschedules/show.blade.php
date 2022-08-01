@@ -176,7 +176,20 @@
                                 @endforeach
                             </table>
                             <br>                            
+                            @php
+                                $turmas = $turmas->merge(
+                                    App\Models\SchoolClass::whereBelongsTo($schoolterm)
+                                        ->whereHas("courseinformations", function($query)use($semestre, $course, $codhab){
+                                            $query->where("numsemidl",$semestre)
+                                                ->where("codhab", $codhab)
+                                                ->where("nomcur",$course->nomcur)
+                                                ->where("perhab", $course->perhab)
+                                                ->where("tipobg", "L");
+                                            })->get()
+                                )
+                            @endphp
                             <table class="table table-bordered table-striped table-hover">
+
                                 <tr>
                                     <th>Código da Disciplina</th>
                                     <th>Nome da Disciplina</th>
