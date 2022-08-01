@@ -4,26 +4,32 @@ $submenu = [
     [
         'text' => 'Usuários',
         'url' => config('app.url') . '/users',
+        'can' => 'editar usuario',
     ],
     [
         'text' => 'Períodos Letivos',
         'url' => config('app.url') . '/schoolterms',
+        'can' => 'visualizar periodo letivo',
     ],
     [
         'text' => 'Turmas',
         'url' => config('app.url') . '/schoolclasses',
+        'can' => 'visualizar turmas',
     ],
     [
         'text' => 'Dobradinhas',
         'url' => config('app.url') . '/fusions',
+        'can' => 'visualizar dobradinhas',
     ],
     [
         'text' => 'Externas',
         'url' => config('app.url') . '/schoolclasses/externals',
+        'can' => 'visualizar turmas externas',
     ],
     [
         'text' => 'Salas',
         'url' => config('app.url') . '/rooms',
+        'can' => 'visualizar salas',
     ],
 ];
 
@@ -40,6 +46,7 @@ $right_menu = [
         'title' => 'Configurações',
         'submenu' => $submenu,
         'align' => 'right',
+        'can' => "visualizar menu config",
     ],
 ];
 

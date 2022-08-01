@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\SchoolTermController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\InstructorController;
@@ -23,6 +24,8 @@ use App\Http\Controllers\CourseScheduleController;
 Route::get('/', function () {
     return view('main');
 });
+
+Route::resource('users', UserController::class);
 
 Route::resource('schoolterms', SchoolTermController::class);
 
