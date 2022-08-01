@@ -262,24 +262,22 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if($turma->externa)
-                                                        @php 
-                                                            $coddis = $turma->coddis; 
-                                                            $codturs = [];
-                                                        @endphp
-                                                        @foreach($turmas->filter(function($t)use($coddis){return $t->coddis == $coddis and $t->externa;}) as $turma2)
+                                                    @php 
+                                                        $coddis = $turma->coddis; 
+                                                        $codturs = [];
+                                                    @endphp
+                                                    @foreach($turmas as $turma2)
+                                                        @if(($turma->coddis == $turma2->coddis) and ($turma->instructors->diff($turma2->instructors)->isEmpty()) and ($turma2->instructors->diff($turma->instructors)->isEmpty()))
                                                             @php 
                                                                 array_push($done, $turma2->id); 
                                                                 array_push($codturs, substr($turma2->codtur,-2,2)); 
                                                             @endphp
-                                                        @endforeach
-                                                        @php sort($codturs); @endphp
-                                                        @foreach($codturs as $codtur)
-                                                            {!! "T.".$codtur !!}<br>
-                                                        @endforeach
-                                                    @else
-                                                        {!! "T.".substr($turma->codtur,-2,2) !!}
-                                                    @endif
+                                                        @endif
+                                                    @endforeach
+                                                    @php sort($codturs); @endphp
+                                                    @foreach($codturs as $codtur)
+                                                        {!! "T.".$codtur !!}<br>
+                                                    @endforeach
                                                 </td>
                                             </tr>
                                         @endif
