@@ -130,7 +130,7 @@ class ProcessImportSchoolClasses implements ShouldQueue, ShouldBeUnique
         
         foreach($docentes as $docente){
             $done = [];
-            foreach($docente->schoolclasses as $t1){
+            foreach($docente->schoolclasses()->where("externa", false)->get() as $t1){
                 $conflicts[$t1->id] = [];
                 array_push($done, $t1->id);
                 foreach($docente->schoolclasses()->whereNotIn("id", $done)->get() as $t2){

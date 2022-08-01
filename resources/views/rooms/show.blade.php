@@ -233,12 +233,12 @@
                 <table class="table table-bordered" style="font-size:12px;">
                     <tr style="background-color:#F5F5F5">
                         <th>Nome da Dobradinha</th>
-                        <th>Horários</th>
-                        <th>Professor(es)</th>
                         <th>Código da Turma</th>
                         <th>Código da Disciplina</th>
                         <th>Nome da Disciplina</th>
                         <th>Tipo da Turma</th>
+                        <th>Horários</th>
+                        <th>Professor(es)</th>
                     </tr>
 
                     @foreach($dobradinhas_nao_alocadas as $fusion)
@@ -247,11 +247,35 @@
                                 @if($x == 0)
                                     <td rowspan="{{count($fusion->schoolclasses)}}" style="white-space: nowrap;
                                                                                     vertical-align: middle;">
-                                        @foreach(range(0, count($fusion->schoolclasses)-1) as $y)
-                                                {{$fusion->schoolclasses[$y]->coddis}}     
-                                                {{$y != count($fusion->schoolclasses)-1 ? "/" : ""}}    
-                                        @endforeach
+                                        @if($fusion->schoolclasses->pluck("coddis")->unique()->count()==1)
+                                            {{ $fusion->master->coddis }}
+                                            @foreach(range(0, count($fusion->schoolclasses)-1) as $y)
+                                                    {{ " T.".substr($fusion->schoolclasses[$y]->codtur,-2,2) }}     
+                                                    {{ $y != count($fusion->schoolclasses)-1 ? "/" : "" }}    
+                                            @endforeach
+                                        @else
+                                            @foreach(range(0, count($fusion->schoolclasses)-1) as $y)
+                                                    {{ $fusion->schoolclasses[$y]->coddis }}     
+                                                    {{ $y != count($fusion->schoolclasses)-1 ? "/" : "" }}    
+                                            @endforeach
+                                        @endif
                                     </td>
+                                @endif
+                                <td>{{ $fusion->schoolclasses[$x]->codtur }}</td>
+                                <td>{{ $fusion->schoolclasses[$x]->coddis }}</td>
+                                <td>
+                                    @if($fusion->schoolclasses[$x]->tiptur == "Graduação")                    
+                                        <a class="text-dark" target="_blank"
+                                            href="{{ 'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$fusion->schoolclasses[$x]->coddis }}"
+                                        >
+                                            {{ $fusion->schoolclasses[$x]->nomdis }}
+                                        </a>
+                                    @else
+                                        {{ $fusion->schoolclasses[$x]->nomdis }}
+                                    @endif
+                                </td>
+                                <td>{{ $fusion->schoolclasses[$x]->tiptur }}</td>
+                                @if($x == 0)
                                     <td rowspan="{{count($fusion->schoolclasses)}}" 
                                     style="{{ $room->isCompatible($fusion->master, $ignore_block=true, $ignore_estmtr=true) ? 'white-space: nowrap;vertical-align: middle;color:green;' : 'white-space: nowrap;vertical-align: middle;color:red' }}">
                                         @foreach($fusion->master->classschedules as $horario)
@@ -265,10 +289,6 @@
                                         @endforeach
                                     </td>
                                 @endif
-                                <td>{{ $fusion->schoolclasses[$x]->codtur }}</td>
-                                <td>{{ $fusion->schoolclasses[$x]->coddis }}</td>
-                                <td>{{ $fusion->schoolclasses[$x]->nomdis }}</td>
-                                <td>{{ $fusion->schoolclasses[$x]->tiptur }}</td>
                             </tr>
                         @endforeach
                     @endforeach

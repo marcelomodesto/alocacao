@@ -82,9 +82,18 @@
                                                 $label .= "Compativel com:\n";
                                                 $first = false;
                                             }
-                                            foreach(range(0, count($fusion->schoolclasses)-1) as $y){
-                                                $label .= $fusion->schoolclasses[$y]->coddis." ";
-                                                $label .= $y != count($fusion->schoolclasses)-1 ? "/" : "\n";
+                                            if($fusion->schoolclasses->pluck("coddis")->unique()->count()==1){
+                                                $label .= $fusion->master->coddis." ";
+                                                foreach(range(0, count($fusion->schoolclasses)-1) as $y){
+                                                    $label .= "T.".substr($fusion->schoolclasses[$y]->codtur,-2,2);
+                                                    $label .= $y != count($fusion->schoolclasses)-1 ? "/" : "";
+                                                }
+                                                $label .= " ".$fusion->master->nomdis."\n";
+                                            }else{
+                                                foreach(range(0, count($fusion->schoolclasses)-1) as $y){
+                                                    $label .= $fusion->schoolclasses[$y]->coddis." ";
+                                                    $label .= $y != count($fusion->schoolclasses)-1 ? "/" : "\n";
+                                                }
                                             }
                                         }
                                     }
