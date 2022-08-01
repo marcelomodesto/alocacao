@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Uspdev\Replicado\DB;
 use App\Models\SchoolClass;
+use App\Models\Course;
 
 class CourseInformation extends Model
 {
@@ -39,6 +40,35 @@ class CourseInformation extends Model
         "47"=>["nomcur"=>"Matemática Licenciatura", "perhab"=>"noturno", "grupo"=>"A", "codcur"=>"45024"],
         "48"=>["nomcur"=>"Matemática Licenciatura", "perhab"=>"noturno", "grupo"=>"B", "codcur"=>"45024"],
     ];
+
+    public static function getFromReplicadoBySchoolClassAlternative($schoolclass)
+    {
+        $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
+        $query .= " FROM UNIDADE AS U, SETOR AS S, PREFIXODISCIP AS PD, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
+        $query .= " WHERE (GC.coddis = :coddis)";
+        $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
+                                    FROM GRADECURRICULAR AS GC2 
+                                    WHERE GC2.coddis = :coddis)";
+        $query .= " AND CGR.codcrl = GC.codcrl";
+        $query .= " AND CGR.sitcrl = :sitcrl";
+        $query .= " AND HGR.codcur = CGR.codcur";
+        $query .= " AND HGR.codhab = CGR.codhab";
+        $query .= " AND HGR.dtadtvhab IS NULL";
+        $query .= " AND CS.codcur = CGR.codcur";
+        $query .= " AND PD.codclg = CS.codclg";
+        $query .= " AND S.codset = PD.codset";
+        $query .= " AND U.codund = S.codund";
+        $query .= " AND U.sglund LIKE :sglund";
+        $param = [
+            'sglund' => env("UNIDADE"),
+            'coddis' => $schoolclass->coddis,
+            'sitcrl' => "AT",
+        ];
+
+        $res =  DB::fetchAll($query, $param);
+
+        return array_unique($res,SORT_REGULAR);
+    }
 
     public static function getFromReplicadoBySchoolClass($schoolclass)
     {
@@ -90,6 +120,32 @@ class CourseInformation extends Model
             ];
 
             $res = DB::fetchAll($query, $param);
+        }
+
+        if(!$res and (substr($schoolclass->codtur,-2,2) == "41" or substr($schoolclass->codtur,-2,2) == "51") and !$schoolclass->externa){
+            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
+            $query .= " FROM UNIDADE AS U, SETOR AS S, PREFIXODISCIP AS PD, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
+            $query .= " WHERE (GC.coddis = :coddis)";
+            $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
+                                        FROM GRADECURRICULAR AS GC2 
+                                        WHERE GC2.coddis = :coddis)";
+            $query .= " AND CGR.codcrl = GC.codcrl";
+            $query .= " AND CGR.sitcrl = :sitcrl";
+            $query .= " AND HGR.codcur = CGR.codcur";
+            $query .= " AND HGR.codhab = CGR.codhab";
+            $query .= " AND HGR.dtadtvhab IS NULL";
+            $query .= " AND CS.codcur = CGR.codcur";
+            $query .= " AND PD.codclg = CS.codclg";
+            $query .= " AND S.codset = PD.codset";
+            $query .= " AND U.codund = S.codund";
+            $query .= " AND U.sglund LIKE :sglund";
+            $param = [
+                'sglund' => env("UNIDADE"),
+                'coddis' => $schoolclass->coddis,
+                'sitcrl' => "AT",
+            ];
+    
+            $res =  DB::fetchAll($query, $param);
         }
 
         return array_unique($res,SORT_REGULAR);
