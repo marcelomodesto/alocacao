@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
-            <h1 class='text-center mb-5'>Horário das Disciplinas por Curso</h1>
+            <h1 class='text-center mb-5'>Horário das Disciplinas</h1>
             
             @php
                 $schoolterm = App\Models\SchoolTerm::getLatest();

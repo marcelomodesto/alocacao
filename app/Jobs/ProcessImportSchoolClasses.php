@@ -17,6 +17,7 @@ use App\Models\Priority;
 use App\Models\Room;
 use App\Models\CourseInformation;
 use App\Models\Fusion;
+use App\Models\Course;
 
 class ProcessImportSchoolClasses implements ShouldQueue, ShouldBeUnique
 {
@@ -101,7 +102,9 @@ class ProcessImportSchoolClasses implements ShouldQueue, ShouldBeUnique
                         }
 
                         foreach(CourseInformation::getFromReplicadoBySchoolClass($schoolclass) as $info){
-                            CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
+                            if(in_array($info["nomcur"],Course::all()->pluck("nomcur")->toArray())){
+                                CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
+                            }
                         }
 
                         $schoolclass->calcEstimadedEnrollment();

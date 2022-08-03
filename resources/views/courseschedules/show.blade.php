@@ -188,7 +188,7 @@
                                             })->get()
                                 )
                             @endphp
-                            <table class="table table-bordered table-striped table-hover">
+                            <table class="table table-bordered table-striped table-hover" style="font-size:12px;">
 
                                 <tr>
                                     <th>Código da Disciplina</th>
