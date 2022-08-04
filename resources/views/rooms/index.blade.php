@@ -35,8 +35,21 @@
                                 <button  class="btn btn-primary"
                                     type="submit"
                                     href="{{ route('rooms.distributes') }}"
+                                    onclick="return confirm('Você tem certeza? Redistribuir as turmas irá desfazer a distribuição atual!')" 
                                 >
                                     Distribuir Turmas
+                                </button>
+                            </form>
+
+                            <form style="display: inline;"  action="{{ route('rooms.reservation') }}" method="GET"
+                            enctype="multipart/form-data"
+                            >
+                                @csrf
+                                <button  class="btn btn-primary"
+                                    type="submit"
+                                    onclick="return confirm('Você tem certeza? Lembre-se de conferir a distribuição das turmas nas salas antes de enviar as reservas para o Urano!')" 
+                                >
+                                    Reservar Salas no Urano
                                 </button>
                             </form>
                         </div>

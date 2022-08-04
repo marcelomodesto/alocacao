@@ -63,6 +63,26 @@ return [
             ]) : [],
         ],
 
+        'urano' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL_URANO'),
+            'host' => env('DB_HOST_URANO', '127.0.0.1'),
+            'port' => env('DB_PORT_URANO', '3306'),
+            'database' => env('DB_DATABASE_URANO', 'forge'),
+            'username' => env('DB_USERNAME_URANO', 'forge'),
+            'password' => env('DB_PASSWORD_URANO', ''),
+            'unix_socket' => env('DB_SOCKET_URANO', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

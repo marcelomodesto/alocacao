@@ -3,18 +3,23 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Room;
-use App\Models\SchoolTerm;
-use App\Models\Priority;
-use App\Models\SchoolClass;
-use App\Models\CourseInformation;
 use App\Http\Requests\CompatibleRoomRequest;
 use App\Http\Requests\AllocateRoomRequest;
 use App\Http\Requests\DistributesRoomRequest;
 use Ismaelw\LaraTeX\LaraTeX;
 use App\Jobs\ProcessReport;
+use App\Jobs\ProcessReservation;
 use romanzipp\QueueMonitor\Models\Monitor;
 use Illuminate\Support\Facades\Storage;
+use Session;
+use App\Models\Requisition;
+use App\Models\Reservation;
+use App\Models\Room;
+use App\Models\SchoolTerm;
+use App\Models\Priority;
+use App\Models\SchoolClass;
+use App\Models\CourseInformation;
+use App\Models\Fusion;
 
 
 class RoomController extends Controller
@@ -258,5 +263,26 @@ class RoomController extends Controller
         }
 
         return redirect("/rooms");
+    }
+
+    public function reservation()
+    {
+        $schoolterm = SchoolTerm::getLatest();
+
+        $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->whereHas("room")->get();
+
+        foreach($schoolclasses as $schoolclass){
+            if(!Reservation::checkAvailability($schoolclass)){
+                Session::put("alert-danger", "A disciplina ".$schoolclass->coddis." turma "
+                .substr($schoolclass->codtur,-2,2)." não pode ser reservada na sala ".$schoolclass->room->nome." por já haver reservas no mesmo horário. 
+                Por segurança não foi feita nenhuma reserva. Entre em contato com o administrador do Sistema de Reserva de Salas(Urano).");
+                return back();
+            }
+        }
+
+        ProcessReservation::dispatch();
+
+        Session::put("alert-info", "As reservas no Urano estão sendo processadas em segundo plano.");
+        return back();
     }
 }

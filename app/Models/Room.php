@@ -36,11 +36,11 @@ class Room extends Model
         if(!$ignore_estmtr){
             if($t1->fusion()->exists()){
                 if($t1->fusion->schoolclasses->pluck("estmtr")->filter()->isNotEmpty() and
-                    ($this->assentos < $t1->fusion->schoolclasses->sum("estmtr"))){
+                    ($this->assentos <= $t1->fusion->schoolclasses->sum("estmtr")*1.2)){
                         return false;
                 }
             }elseif($t1->estmtr){
-                if($this->assentos < $t1->estmtr){
+                if($this->assentos <= $t1->estmtr){
                     return false;
                 }
             }

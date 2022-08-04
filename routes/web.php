@@ -38,6 +38,7 @@ Route::resource('schoolclasses', SchoolClassController::class);
 
 Route::resource('instructors', InstructorController::class);
 
+Route::get('/rooms/reservation', [RoomController::class, 'reservation'])->name('rooms.reservation');
 Route::get('/rooms/makeReport', [RoomController::class, 'makeReport'])->name('rooms.makeReport');
 Route::get('/rooms/downloadReport', [RoomController::class, 'downloadReport'])->name('rooms.downloadReport');
 Route::patch('/rooms/{room}/allocate', [RoomController::class, 'allocate'])->name('rooms.allocate');

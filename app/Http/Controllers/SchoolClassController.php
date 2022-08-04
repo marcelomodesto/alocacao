@@ -17,6 +17,7 @@ use App\Models\Fusion;
 use App\Models\Room;
 use App\Models\CourseInformation;
 use App\Jobs\ProcessImportSchoolClasses;
+use Session;
 
 class SchoolClassController extends Controller
 {
