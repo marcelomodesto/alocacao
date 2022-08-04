@@ -24,4 +24,13 @@ class MonitorController extends Controller
                                                 'progress'=>$max_progress])
                                         ->first());
     }
+
+    public function getReservationProcess()
+    {
+        $max_id = Monitor::where(['name'=>'App\Jobs\ProcessReservation'])->max('id');
+        $max_progress = Monitor::where(['id'=>$max_id])->max('progress');
+        return response()->json(Monitor::where(['id'=>$max_id, 
+                                                'progress'=>$max_progress])
+                                        ->first());
+    }
 }

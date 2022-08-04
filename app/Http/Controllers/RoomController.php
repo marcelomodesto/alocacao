@@ -276,22 +276,9 @@ class RoomController extends Controller
             abort(403);
         }
 
-        $schoolterm = SchoolTerm::getLatest();
-
-        $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->whereHas("room")->get();
-
-        foreach($schoolclasses as $schoolclass){
-            if(!Reservation::checkAvailability($schoolclass)){
-                Session::put("alert-danger", "A disciplina ".$schoolclass->coddis." turma "
-                .substr($schoolclass->codtur,-2,2)." não pode ser reservada na sala ".$schoolclass->room->nome." por já haver reservas no mesmo horário. 
-                Por segurança não foi feita nenhuma reserva. Entre em contato com o administrador do Sistema de Reserva de Salas(Urano).");
-                return back();
-            }
-        }
-
         ProcessReservation::dispatch();
 
-        Session::put("alert-info", "As reservas no Urano estão sendo processadas em segundo plano.");
+        Session::put("alert-info", "As reservas no Urano estão sendo processadas.");
         return back();
     }
 }

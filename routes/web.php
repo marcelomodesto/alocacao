@@ -51,6 +51,7 @@ Route::resource('fusions', FusionController::class);
 
 Route::get('/monitor/getImportProcess', [MonitorController::class, 'getImportProcess']);
 Route::get('/monitor/getReportProcess', [MonitorController::class, 'getReportProcess']);
+Route::get('/monitor/getReservationProcess', [MonitorController::class, 'getReservationProcess']);
 
 Route::get('/courseschedules', [CourseScheduleController::class, 'index'])->name('courseschedules.index');
 Route::get('/courseschedules/{course}', [CourseScheduleController::class, 'show'])->name('courseschedules.show');
