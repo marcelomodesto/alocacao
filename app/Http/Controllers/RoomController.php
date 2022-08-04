@@ -11,6 +11,7 @@ use App\Jobs\ProcessReport;
 use App\Jobs\ProcessReservation;
 use romanzipp\QueueMonitor\Models\Monitor;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 use Session;
 use App\Models\Requisition;
 use App\Models\Reservation;
@@ -158,6 +159,10 @@ class RoomController extends Controller
 
     public function distributes(DistributesRoomRequest $request)
     {
+        if(!Gate::allows('distribuir turmas nas salas')){
+            abort(403);
+        }
+
         $validated = $request->validated();
         
         $salas_diposniveis = $validated["rooms_id"];
@@ -267,6 +272,10 @@ class RoomController extends Controller
 
     public function reservation()
     {
+        if(!Gate::allows('reservar salas no urano')){
+            abort(403);
+        }
+
         $schoolterm = SchoolTerm::getLatest();
 
         $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->whereHas("room")->get();
