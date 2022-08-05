@@ -27,6 +27,8 @@
                 $('#school_class_id').append("<option value="+turma.id+">"+turma.coddis+" T."+turma.codtur.slice(-2)+" "+turma.nomdis+"</option>");
               }else if(turma.tiptur=="Pós Graduação"){
                 $('#school_class_id').append("<option value="+turma.id+">"+turma.coddis+" "+turma.nomdis+"</option>");
+              }else{
+                $('#school_class_id').append("<option value="+turma.id+">"+turma.nomdis+"</option>");
               }
             });
           }

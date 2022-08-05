@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CompatibleRoomRequest;
 use App\Http\Requests\AllocateRoomRequest;
 use App\Http\Requests\DistributesRoomRequest;
+use App\Http\Requests\EmptyRoomRequest;
 use Ismaelw\LaraTeX\LaraTeX;
 use App\Jobs\ProcessReport;
 use App\Jobs\ProcessReservation;
@@ -119,7 +120,7 @@ class RoomController extends Controller
         $turmas = SchoolClass::whereBelongsTo($st)->whereDoesntHave("room")->whereDoesntHave("fusion")
                     ->union(SchoolClass::whereExists(function($query){
                         $query->from("fusions")->whereColumn("fusions.master_id","school_classes.id");
-                    })->whereBelongsTo($st)->whereDoesntHave("room"))->get();
+                    })->whereBelongsTo($st)->whereDoesntHave("room"))->get()->sortBy("coddis");
 
         foreach($turmas as $turma){
             if($room->isCompatible($turma, $ignore_block=true, $ignore_estmtr=true)){
@@ -168,11 +169,6 @@ class RoomController extends Controller
         $salas_diposniveis = $validated["rooms_id"];
 
         $schoolterm = SchoolTerm::getLatest();
-
-        foreach(SchoolClass::whereBelongsTo($schoolterm)->get() as $schoolclass){
-            $schoolclass->room()->dissociate();
-            $schoolclass->save();
-        }
 
         foreach(CourseInformation::$codtur_by_course as $sufixo_codtur=>$course){
             $turmas = SchoolClass::whereBelongsTo($schoolterm)->whereHas("courseinformations", function($query)use($course){
@@ -267,7 +263,8 @@ class RoomController extends Controller
             }
         }
 
-        return redirect("/rooms");
+        Session::put("alert-info", "As turmas foram distribuidas nas salas com sucesso.");
+        return back();
     }
 
     public function reservation()
@@ -279,6 +276,31 @@ class RoomController extends Controller
         ProcessReservation::dispatch();
 
         Session::put("alert-info", "As reservas no Urano estão sendo processadas.");
+        return back();
+    }
+
+    public function empty(EmptyRoomRequest $request)
+    {
+        if(!Gate::allows('esvaziar salas')){
+            abort(403);
+        }
+
+        $validated = $request->validated();
+
+        $rooms_ids = $validated["rooms_id"];
+
+        $schoolterm = SchoolTerm::getLatest();
+
+        $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->whereHas("room", function($query)use($rooms_ids){
+            $query->whereIn("id", $rooms_ids);
+        })->get();
+
+        foreach($schoolclasses as $schoolclass){
+            $schoolclass->room()->dissociate();
+            $schoolclass->save();
+        }
+
+        Session::put("alert-info", "As salas foram esvaziadas com sucesso.");
         return back();
     }
 }

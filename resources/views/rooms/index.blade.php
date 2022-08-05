@@ -16,6 +16,7 @@
                 <div class="d-flex justify-content-center">
                     <div class="col-md-6">
                         <div class="float-right" style="margin-bottom: 20px;">
+                            <!--
                             <form style="display: inline;"  action="{{ route('rooms.makeReport') }}" method="GET"
                             enctype="multipart/form-data"
                             >
@@ -27,8 +28,9 @@
                                     Gerar Relatório
                                 </button>
                             </form>
+                            -->
                             
-                            <form id="distributesForm" style="display: inline;" id="distributesSchoolClassesForm" action="{{ route('rooms.distributes') }}" method="POST"
+                            <form id="distributesForm" style="display: inline;"action="{{ route('rooms.distributes') }}" method="POST"
                             enctype="multipart/form-data"
                             >
                                 @method('patch')
@@ -36,10 +38,23 @@
                                 <button  class="btn btn-primary"
                                     id="btn-distributes"
                                     type="submit"
-                                    href="{{ route('rooms.distributes') }}"
                                     onclick="return confirm('Você tem certeza? Redistribuir as turmas irá desfazer a distribuição atual!')" 
                                 >
                                     Distribuir Turmas
+                                </button>
+                            </form>
+
+                            <form id="emptyForm" style="display: inline;" action="{{ route('rooms.empty') }}" method="POST"
+                            enctype="multipart/form-data"
+                            >
+                                @method('patch')
+                                @csrf
+                                <button  class="btn btn-primary"
+                                    id="btn-empty"
+                                    type="submit"
+                                    onclick="return confirm('Você tem certeza? Esvaziar as salas irá desfazer a distribuição atual!')" 
+                                >
+                                    Esvaziar Salas
                                 </button>
                             </form>
 
@@ -63,6 +78,7 @@
                             <th style="vertical-align: middle;">Nome</th>
                             <th style="vertical-align: middle;">Assentos</th>
                             <th>Distribuir<br>nas<br>Salas</th>
+                            <th style="vertical-align: middle;">Esvaziar<br>Salas</th>
                             <th></th>
                         </tr>
 
@@ -121,7 +137,10 @@
                                     
                                 @endphp
                                 <td>
-                                    <input id="rooms_id" form="distributesForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" {!! !in_array($sala->nome, ["B05","B04"]) ? 'checked' : '' !!}>
+                                    <input id="rooms_id" form="distributesForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" {!! !in_array($sala->nome, ["B05","B04","B07","A249"]) ? 'checked' : '' !!}>
+                                </td>
+                                <td>
+                                    <input id="rooms_id" form="emptyForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" checked>
                                 </td>
                                 <td class="text-center" style="white-space: nowrap;">
                                     <a  class="btn btn-outline-dark btn-sm"
@@ -187,13 +206,14 @@ $( function() {
             dataType: 'json',
             success: function success(json){
                 if('progress' in json){
-                    if(!json["data"]){
+                    if(!json["data"] && !json['failed']){
                         if(document.getElementById('progressbar')){
                             $( "#progressbar" ).progressbar( "value", json['progress'] );
                         }else if(json['progress'] != 100){
                             document.getElementById("btn-reservation").disabled = true;
-                            document.getElementById("btn-report").disabled = true;
+                            //document.getElementById("btn-report").disabled = true;
                             document.getElementById("btn-distributes").disabled = true;
+                            document.getElementById("btn-empty").disabled = true;
                             $('#progressbar-div').append("<div id='progressbar'><div class='progress-label'></div></div>");
                             var progressbar = $( "#progressbar" ),
                             progressLabel = $( ".progress-label" );
@@ -204,8 +224,9 @@ $( function() {
                                 },
                                 complete: function() {
                                     document.getElementById("btn-reservation").disabled = false;
-                                    document.getElementById("btn-report").disabled = false;
+                                    //document.getElementById("btn-report").disabled = false;
                                     document.getElementById("btn-distributes").disabled = false;
+                                    document.getElementById("btn-empty").disabled = false;
                                     $( "#progressbar" ).remove();
                                     $('#flash-message').empty();
                                     $('#flash-message').append("<p id='success-message' class='alert alert-success'>As reservas foram feitas com sucesso.</p>");
@@ -214,15 +235,25 @@ $( function() {
                         }
                     }else if((JSON.parse(json["data"])["status"] == "failed") && !(document.getElementById('error-message'))){
                         document.getElementById("btn-reservation").disabled = false;
-                        document.getElementById("btn-report").disabled = false;
+                        //document.getElementById("btn-report").disabled = false;
                         document.getElementById("btn-distributes").disabled = false;
+                        document.getElementById("btn-empty").disabled = false;
+                        $( "#progressbar" ).remove();
 
                         var schoolclass = JSON.parse(json["data"])["schoolclass"];
                         var sala = JSON.parse(json["data"])["room"];
 
                         $('#flash-message').empty();
-                        $('#flash-message').append("<p id='error-message' class='alert alert-danger'>Não foi possivel realizar as reservas.A disciplina "+
-                            schoolclass.coddis+" turma "+schoolclass.codtur+" não conseguiu reserva na sala "+sala+".Entre em contato com o administrador. </p>");
+                        $('#flash-message').append("<p id='error-message' class='alert alert-danger'>Não foi possivel realizar as reservas. A disciplina "+
+                            schoolclass.coddis+" turma "+schoolclass.codtur+" não conseguiu reserva na sala "+sala+". Entre em contato com o administrador. </p>");
+                    }else if(json['failed']){
+                        document.getElementById("btn-reservation").disabled = false;
+                        //document.getElementById("btn-report").disabled = false;
+                        document.getElementById("btn-distributes").disabled = false;
+                        document.getElementById("btn-empty").disabled = false;
+                        $( "#progressbar" ).remove();
+                        $('#flash-message').empty();
+                        $('#flash-message').append("<p id='error-message' class='alert alert-danger'>Não foi possivel realizar as reservas. Falha critica. Entre em contato com o administrador. </p>");
                     }
                 }
                 var timeouthandle = setTimeout( progress2, 1000);
