@@ -60,6 +60,9 @@ class ProcessImportSchoolClasses implements ShouldQueue, ShouldBeUnique
         foreach($turmas as $turma){
             if ((($turma['tiptur'] == "Pós Graduação") or 
                 ($turma['tiptur'] == "Graduação" and substr($turma["codtur"], -2, 2) >= "40") or
+                ($turma['coddis'] == "MAT0112" and substr($turma["codtur"], -2, 2) == "34") or
+                ($turma['coddis'] == "MAT0111" and substr($turma["codtur"], -2, 2) == "34") or
+                ($turma['coddis'] == "MAT0121" and substr($turma["codtur"], -2, 2) == "34") or
                 ($turma['tiptur'] == "Graduação" and $turma["coddis"] == "MAE0116") or
                 ($turma["externa"])) and
                 ($turma["nomdis"] != "Trabalho de Formatura")){
