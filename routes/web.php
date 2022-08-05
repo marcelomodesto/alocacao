@@ -22,6 +22,11 @@ use App\Http\Controllers\CourseScheduleController;
 */
 
 Route::get('/', function () {
+    if(Auth::check()){
+        if(Auth::user()->hasRole(["Operador","Administrador"])){
+            return view("instructions");
+        }
+    }
     return view('main');
 });
 
