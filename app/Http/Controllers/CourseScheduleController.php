@@ -16,4 +16,9 @@ class CourseScheduleController extends Controller
     {
         return view("courseschedules.show", compact("course"));
     }
+
+    public function showLicNot()
+    {
+        return view("courseschedules.showLicNot");
+    }
 }

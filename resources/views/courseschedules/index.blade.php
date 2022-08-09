@@ -15,20 +15,25 @@
 
             <h4 class='text-center mb-5'>{{ $schoolterm->period . ' de ' . $schoolterm->year }}</h4>
 
-            @foreach(App\Models\Course::all() as $course)                
+            @foreach(App\Models\Course::whereNull("grupo")->get() as $course)                
                 <a class="link"
                     href="{{ route(
                         'courseschedules.show',
                         $course
                     ) }}"
                 >
-                    {!! $course->nomcur." - ".$course->perhab !!}
+                    {!! $course->nomcur." - ".ucfirst($course->perhab) !!}
                     @if($course->grupo)
                         {!! " Grupo ".$course->grupo !!}
                     @endif
                 </a>
                 <br>
-            @endforeach
+            @endforeach            
+            <a class="link"
+                href="{{ route('courseschedules.showLicNot') }}"
+            >
+                Matemática Licenciatura - Noturno
+            </a>
 
         </div>
     </div>
