@@ -124,7 +124,7 @@
                                 </tr>
                                 @foreach($horarios as $h)
                                     <tr>
-                                        <td width="170px">{{ explode(" ",$h)[0] }}<br>{{ explode(" ",$h)[1] }}<br>{{ explode(" ",$h)[2] }}</td>
+                                        <td style="vertical-align: middle;" width="170px">{{ explode(" ",$h)[0] }}<br>{{ explode(" ",$h)[1] }}<br>{{ explode(" ",$h)[2] }}</td>
                                         @foreach($dias as $dia)
                                             @php $done = []; @endphp
                                             <td style="vertical-align: middle;" width="180px">                                                
@@ -339,7 +339,7 @@
                     </tr>
                     @foreach($horarios as $h)
                         <tr>
-                            <td width="170px">{{ explode(" ",$h)[0] }}<br>{{ explode(" ",$h)[1] }}<br>{{ explode(" ",$h)[2] }}</td>
+                            <td style="vertical-align: middle;" width="170px">{{ explode(" ",$h)[0] }}<br>{{ explode(" ",$h)[1] }}<br>{{ explode(" ",$h)[2] }}</td>
                             @foreach($dias as $dia)
                                 @php $done = []; @endphp
                                 <td style="vertical-align: middle;" width="180px">                                                
