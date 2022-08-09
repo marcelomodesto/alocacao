@@ -35,11 +35,8 @@
                 </div>
             </div>
             
-
-
-            <br>
             @foreach(App\Models\Observation::whereBelongsTo($schoolterm)->get() as $observation)
-                <div class="card">
+                <div class="card my-3">
                     <div class="card-body">
                         <h3 class='card-title' style="color:blue">{!! $observation->title !!}</h3>
                         @foreach(explode("\r\n", $observation->body) as $line)
@@ -48,8 +45,7 @@
                     </div>
                 </div>
             @endforeach
-            <br>
-            <br>
+            
             @php
                 $semestres = $schoolterm->period == "1° Semestre" ? [1,3,5,7,9] : [2,4,6,8,10];
             @endphp
