@@ -106,6 +106,43 @@ class SchoolClass extends Model
         return false;
     }
 
+    public function searchForFusion()
+    {
+        $conflicts = [];
+        $fusion = false;
+        $schoolclasses = SchoolClass::whereBelongsTo($this->schoolterm)->whereHas("instructors", function($query){
+            $query->whereIn("id",$this->instructors()->pluck("id")->toArray());
+        })->where("id","!=",$this->id)->get();
+
+        foreach($schoolclasses as $sc2){
+            if($this->isInConflict($sc2) and $this->instructors->diff($sc2->instructors)->isEmpty() and $sc2->instructors->diff($this->instructors)->isEmpty()){
+                array_push($conflicts, $sc2->id);
+                if($sc2->fusion()->exists()){
+                    $fusion = $sc2->fusion;
+                }
+            }
+        }
+
+        if($conflicts){
+            if(!$fusion){
+                $fusion = new Fusion;
+                if(SchoolClass::whereIn("id", $conflicts)->where("tiptur", "Graduação")->exists()){
+                    $fusion->master()->associate(SchoolClass::whereIn("id", $conflicts)->where("tiptur", "Graduação")->first());
+                }else{
+                    $fusion->master()->associate($this);
+                }
+                $fusion->save();
+                foreach($conflicts as $id){
+                    $sc2 = SchoolClass::find($id); 
+                    $sc2->fusion()->associate($fusion); 
+                    $sc2->save();
+                }
+            }
+            $this->fusion()->associate($fusion);
+            $this->save();
+        }
+    }
+
     public static function getGrdDisciplinesFromReplicadoByInstitute($sglund){
         $query = " SELECT DC.coddis";
         $query .= " FROM UNIDADE AS U, SETOR AS S, PREFIXODISCIP AS PD, DISCIPGRCODIGO AS DC";

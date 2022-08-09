@@ -82,6 +82,8 @@ class SchoolClassController extends Controller
                 }
             }
             $schoolclass->save();
+
+            $schoolclass->searchForFusion();
         }else{
             Session::flash("alert-warning", "Já existe uma turma cadastrada com esse código de turma e código de disciplina");
             return back();
@@ -141,6 +143,8 @@ class SchoolClassController extends Controller
 
         $schoolclass->update($validated);
 
+        $schoolclass->searchForFusion();
+
         return redirect('/schoolclasses');
     }
 
@@ -155,6 +159,24 @@ class SchoolClassController extends Controller
         $schoolclass->instructors()->detach();
         $schoolclass->classschedules()->detach();
         $schoolclass->courseinformations()->detach();
+
+        if($schoolclass->fusion()->exists()){
+            if(count($schoolclass->fusion->schoolclasses)==2){
+                $cs2 = $schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->first();
+                $cs2->fusion_id = null;
+                $cs2->save();
+                $schoolclass->fusion->delete();
+            }elseif($schoolclass->fusion->master->id == $schoolclass->id){
+                $fusion = $schoolclass->fusion;
+                if($schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->where("tiptur","Graduação")->exists()){
+                    $schoolclass->fusion->master()->associate($schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->where("tiptur", "Graduação")->first());
+                }else{
+                    $fusion->master()->associate($schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->first());
+                }
+                $fusion->save();
+            }
+        }
+
         $schoolclass->delete();
 
         return back();
