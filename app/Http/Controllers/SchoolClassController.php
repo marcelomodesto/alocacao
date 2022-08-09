@@ -8,6 +8,7 @@ use App\Http\Requests\IndexSchoolClassRequest;
 use App\Http\Requests\CreateSchoolClassRequest;
 use App\Http\Requests\DestroyInBatchSchoolClassRequest;
 use App\Http\Requests\MakeInternalInBatchSchoolClassRequest;
+use App\Http\Requests\MakeExternalInBatchSchoolClassRequest;
 use App\Models\SchoolClass;
 use App\Models\SchoolTerm;
 use App\Models\Instructor;
@@ -189,6 +190,19 @@ class SchoolClassController extends Controller
         foreach($validated["school_classes_id"] as $id){
             $schoolclass = SchoolClass::find($id);
             $schoolclass->externa = false;
+            $schoolclass->save();
+        }
+
+        return back();
+    }
+
+    public function makeExternalInBatch(MakeExternalInBatchSchoolClassRequest $request)
+    {
+        $validated = $request->validated();
+
+        foreach($validated["school_classes_id"] as $id){
+            $schoolclass = SchoolClass::find($id);
+            $schoolclass->externa = true;
             $schoolclass->save();
         }
 

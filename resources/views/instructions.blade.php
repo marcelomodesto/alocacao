@@ -10,10 +10,10 @@
             <h1 class='text-center mb-5'>Instruções</h1>
 
             <li>Cadastre um período letivo informando ano e semestre no menu superior direito <i class="fas fa-cog"></i>->Perídos Letivos.</li><br>
-            <li>Acesse a pagina das turmas em <i class="fas fa-cog"></i>->Turmas e clique no botão "Importar do Jupiter". Lembre-se de verificar no calendário escolar se as
+            <li>Acesse a pagina das turmas em <i class="fas fa-cog"></i>->Turmas Internas e clique no botão "Importar do Jupiter". Lembre-se de verificar no calendário escolar se as
             informações ja estão disponiveis.</li><br>
             <li>Acesse a pagina das Dobradinhas em <i class="fas fa-cog"></i>->Dobradinhas e verifique se não há nenhuma inconsistência".</li><br>
-            <li>Acesse a pagina das turmas de outras unidades em <i class="fas fa-cog"></i>->Externas. As turmas externas que serão ministradas no IME
+            <li>Acesse a pagina das turmas de outras unidades em <i class="fas fa-cog"></i>->Turmas Externas. As turmas externas que serão ministradas no IME
                 precisam ser convertidas em internas, você pode fazer isso selecionando a(s) turma(s) na coluna "Tornar Interno" e clicando no botão "Tornar Interno"
                 As turmas externas que não devem aparecer no "Horário das Disciplinas" precisam ser excluidas, você pode fazer isso selecionando a(s) turma(s) na 
                 coluna "Excluir" e clicando no botão "Excluir".</li><br>

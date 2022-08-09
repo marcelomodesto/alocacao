@@ -12,19 +12,19 @@ $submenu = [
         'can' => 'visualizar periodo letivo',
     ],
     [
-        'text' => 'Turmas',
+        'text' => 'Turmas Internas',
         'url' => config('app.url') . '/schoolclasses',
         'can' => 'visualizar turmas',
+    ],
+    [
+        'text' => 'Turmas Externas',
+        'url' => config('app.url') . '/schoolclasses/externals',
+        'can' => 'visualizar turmas externas',
     ],
     [
         'text' => 'Dobradinhas',
         'url' => config('app.url') . '/fusions',
         'can' => 'visualizar dobradinhas',
-    ],
-    [
-        'text' => 'Externas',
-        'url' => config('app.url') . '/schoolclasses/externals',
-        'can' => 'visualizar turmas externas',
     ],
     [
         'text' => 'Salas',

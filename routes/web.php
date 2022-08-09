@@ -34,6 +34,7 @@ Route::resource('users', UserController::class);
 
 Route::resource('schoolterms', SchoolTermController::class);
 
+Route::post('/schoolclasses/makeExternalInBatch', [SchoolClassController::class, 'makeExternalInBatch'])->name('schoolclasses.makeExternalInBatch');
 Route::post('/schoolclasses/makeInternalInBatch', [SchoolClassController::class, 'makeInternalInBatch'])->name('schoolclasses.makeInternalInBatch');
 Route::post('/schoolclasses/destroyInBatch', [SchoolClassController::class, 'destroyInBatch'])->name('schoolclasses.destroyInBatch');
 Route::get('/schoolclasses/externals', [SchoolClassController::class, 'externals'])->name('schoolclasses.externals');
