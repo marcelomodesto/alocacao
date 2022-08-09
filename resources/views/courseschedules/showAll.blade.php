@@ -14,6 +14,21 @@
             <h1 class='text-center mb-5'><b>Todas Turmas</b></h1>
             <h2 class='text-center mb-5'>{!! $schoolterm->period . ' de ' . $schoolterm->year !!}</h2>
 
+
+            <br>
+            @foreach(App\Models\Observation::whereBelongsTo($schoolterm)->get() as $observation)
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class='card-title' style="color:blue">{!! $observation->title !!}</h3>
+                        @foreach(explode("\r\n", $observation->body) as $line)
+                            <p class="card-text" style="color:blue">{!! $line !!} </p>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+            <br>
+            <br>
+            
             @if (count($schoolclasses) > 0)
                 <table class="table table-bordered table-striped table-hover" style="font-size:12px;">
                     <tr>

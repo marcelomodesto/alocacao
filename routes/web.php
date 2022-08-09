@@ -9,6 +9,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\FusionController;
 use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\CourseScheduleController;
+use App\Http\Controllers\ObservationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,3 +65,5 @@ Route::get('/courseschedules/all', [CourseScheduleController::class, 'showAll'])
 Route::get('/courseschedules/licnot', [CourseScheduleController::class, 'showLicNot'])->name('courseschedules.showLicNot');
 Route::get('/courseschedules', [CourseScheduleController::class, 'index'])->name('courseschedules.index');
 Route::get('/courseschedules/{course}', [CourseScheduleController::class, 'show'])->name('courseschedules.show');
+
+Route::resource('observations', ObservationController::class);

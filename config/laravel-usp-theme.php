@@ -31,6 +31,10 @@ $submenu = [
         'url' => config('app.url') . '/rooms',
         'can' => 'visualizar salas',
     ],
+    [
+        'text' => 'Observações',
+        'url' => config('app.url') . '/observations',
+    ],
 ];
 
 $menu = [
