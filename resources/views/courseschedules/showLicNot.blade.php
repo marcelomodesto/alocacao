@@ -83,6 +83,15 @@
                                 $turmas = $turmas_grupoB;
                             }
 
+                            $turmas = $turmas->filter(function($turma){
+                                foreach($turma->classschedules as $schedule){
+                                    if($schedule->horent < "18:00"){
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            });
+
                             $dias = ['seg', 'ter', 'qua', 'qui', 'sex'];  
 
                             $temSab = $turmas->filter(function($turma){

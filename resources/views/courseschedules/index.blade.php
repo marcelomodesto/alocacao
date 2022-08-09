@@ -33,6 +33,12 @@
                 href="{{ route('courseschedules.showLicNot') }}"
             >
                 Matemática Licenciatura - Noturno
+            </a>    
+            <br>    
+            <a class="link"
+                href="{{ route('courseschedules.showAll') }}"
+            >
+                Todas Turmas
             </a>
 
         </div>
