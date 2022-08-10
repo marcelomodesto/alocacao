@@ -109,6 +109,15 @@
                                     }
                                     return true;
                                 });
+                            }elseif($course->nomcur=="Matemática Aplicada - Bacharelado"){
+                                $turmas = $turmas->filter(function($turma){
+                                    foreach($turma->classschedules as $schedule){
+                                        if($schedule->horent >= "18:00"){
+                                            return false;
+                                        }
+                                    }
+                                    return true;
+                                });
                             }elseif($course->nomcur=="Bacharelado em Matemática Aplicada e Computacional"){
                                 $turmas = $turmas->filter(function($turma)use($turmas){
                                     foreach($turmas as $t2){
