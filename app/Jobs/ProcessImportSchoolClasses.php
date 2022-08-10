@@ -122,11 +122,31 @@ class ProcessImportSchoolClasses implements ShouldQueue, ShouldBeUnique
             $this->queueProgress(10 + floor($n*70/$t));
         }
 
+        $schoolclasses = SchoolClass::where("tiptur", "Graduação")->get();
+        $schoolclasses = $schoolclasses->filter(function($schoolclass){
+            if(count(SchoolClass::where("coddis",$schoolclass->coddis)->get())==1){
+                return true;
+            }
+            return false;
+        });
+
+        foreach($schoolclasses as $schoolclass){
+            $schoolclass->courseinformations()->detach();
+            foreach(CourseInformation::getFromReplicadoBySchoolClassAlternative($schoolclass) as $info){
+                CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
+            }
+        }
+
+        $cis = [];
         foreach(SchoolClass::where("tiptur", "Graduação")->whereDoesntHave("courseinformations")->get() as $schoolclass){
             if(!SchoolClass::where("coddis",$schoolclass->coddis)->whereHas("courseinformations")->exists()){
-                foreach(CourseInformation::getFromReplicadoBySchoolClassAlternative($schoolclass) as $info){
-                    CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
-                }
+                array_push($cis,["schoolclass"=>$schoolclass,"infos"=>CourseInformation::getFromReplicadoBySchoolClassAlternative($schoolclass)]);
+            }
+        }
+
+        foreach($cis as $ci){
+            foreach($ci["infos"] as $info){
+                CourseInformation::firstOrCreate($info)->schoolclasses()->save($ci["schoolclass"]);
             }
         }
 

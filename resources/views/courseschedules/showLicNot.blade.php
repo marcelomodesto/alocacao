@@ -115,7 +115,7 @@
                             })->isNotEmpty();
 
                             if($temSab){
-                                array_unshift($dias, "sab");
+                                array_push($dias, "sab");
                             }
 
                             $schedules = array_unique(App\Models\ClassSchedule::whereHas("schoolclasses", function($query)use($turmas){$query->whereIn("id",$turmas->pluck("id")->toArray());})->select(["horent","horsai"])->where("diasmnocp", "!=", "dom")->get()->toArray(),SORT_REGULAR);
@@ -133,14 +133,14 @@
                             <table class="table table-bordered" style="font-size:15px;">
                                 <tr style="background-color:#F5F5F5">
                                     <th>Horários</th>
-                                    @if($temSab)
-                                        <th>Sábado</th>
-                                    @endif
                                     <th>Segunda</th>
                                     <th>Terça</th>
                                     <th>Quarta</th>
                                     <th>Quinta</th>
                                     <th>Sexta</th>
+                                    @if($temSab)
+                                        <th>Sábado</th>
+                                    @endif
                                 </tr>
                                 @foreach($horarios as $h)
                                     <tr>
@@ -333,7 +333,7 @@
                     })->isNotEmpty();
 
                     if($temSab){
-                        array_unshift($dias, "sab");
+                        array_push($dias, "sab");
                     }
 
                     $schedules = array_unique(App\Models\ClassSchedule::whereHas("schoolclasses", function($query)use($turmas_eletivas){$query->whereIn("id",$turmas_eletivas->pluck("id")->toArray());})->select(["horent","horsai"])->where("diasmnocp", "!=", "dom")->get()->toArray(),SORT_REGULAR);
@@ -348,14 +348,14 @@
                 <table class="table table-bordered" style="font-size:15px;">
                     <tr style="background-color:#F5F5F5">
                         <th>Horários</th>
-                        @if($temSab)
-                            <th>Sábado</th>
-                        @endif
                         <th>Segunda</th>
                         <th>Terça</th>
                         <th>Quarta</th>
                         <th>Quinta</th>
                         <th>Sexta</th>
+                        @if($temSab)
+                            <th>Sábado</th>
+                        @endif
                     </tr>
                     @foreach($horarios as $h)
                         <tr>

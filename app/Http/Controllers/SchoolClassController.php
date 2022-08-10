@@ -85,6 +85,10 @@ class SchoolClassController extends Controller
             $schoolclass->save();
 
             $schoolclass->searchForFusion();
+
+            foreach(CourseInformation::getFromReplicadoBySchoolClassAlternative($schoolclass) as $info){
+                CourseInformation::firstOrCreate($info)->schoolclasses()->save($schoolclass);
+            }
         }else{
             Session::flash("alert-warning", "Já existe uma turma cadastrada com esse código de turma e código de disciplina");
             return back();

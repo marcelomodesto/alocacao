@@ -70,6 +70,7 @@
                                 ->where("perhab", $course->perhab)
                                 ->get()->sortBy("codhab")->toArray(),"codhab", "nomhab"));
                     }
+                    unset($habs["Habilitação em Saúde Animal"]);
                     asort($habs);
                 @endphp
                 @foreach($habs as $nomhab=>$codhab)
@@ -99,6 +100,35 @@
                                     }
                                     return true;
                                 });
+                            }elseif($course->nomcur=="Estatística Bacharelado"){
+                                $turmas = $turmas->filter(function($turma){
+                                    foreach($turma->classschedules as $schedule){
+                                        if($schedule->horent >= "18:00"){
+                                            return false;
+                                        }
+                                    }
+                                    return true;
+                                });
+                            }elseif($course->nomcur=="Bacharelado em Matemática Aplicada e Computacional"){
+                                $turmas = $turmas->filter(function($turma)use($turmas){
+                                    foreach($turmas as $t2){
+                                        if($turma->coddis == $t2->coddis and $turma->id != $t2->id){
+                                            if($t2->classschedules()->where("horent",">=","18:00")->exists() and
+                                                $turma->classschedules()->where("horsai","<=", "19:00")->exists()){
+                                                $conflict = false;
+                                                foreach($turmas as $t3){
+                                                    if($t2->isInConflict($t3) and $t2->id != $t3->id){
+                                                        $conflict = true;
+                                                    }
+                                                }
+                                                if(!$conflict){
+                                                    return false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    return true;
+                                });
                             }
 
                             $dias = ['seg', 'ter', 'qua', 'qui', 'sex'];  
@@ -113,7 +143,7 @@
                             })->isNotEmpty();
 
                             if($temSab){
-                                array_unshift($dias, "sab");
+                                array_push($dias, "sab");
                             }
 
                             $schedules = array_unique(App\Models\ClassSchedule::whereHas("schoolclasses", function($query)use($turmas){$query->whereIn("id",$turmas->pluck("id")->toArray());})->select(["horent","horsai"])->where("diasmnocp", "!=", "dom")->get()->toArray(),SORT_REGULAR);
@@ -130,14 +160,14 @@
                         <table class="table table-bordered" style="font-size:15px;">
                             <tr style="background-color:#F5F5F5">
                                 <th>Horários</th>
-                                @if($temSab)
-                                    <th>Sábado</th>
-                                @endif
                                 <th>Segunda</th>
                                 <th>Terça</th>
                                 <th>Quarta</th>
                                 <th>Quinta</th>
                                 <th>Sexta</th>
+                                @if($temSab)
+                                    <th>Sábado</th>
+                                @endif
                             </tr>
                             @foreach($horarios as $h)
                                 <tr>
@@ -317,6 +347,7 @@
                             ->where("perhab", $course->perhab)
                             ->get()->toArray(),"codhab", "nomhab"));
                 }
+                unset($habs["Habilitação em Saúde Animal"]);
                 asort($habs);
             @endphp
             @foreach($habs as $nomhab=>$codhab)
@@ -336,8 +367,11 @@
                                 ->where("codhab", $codhab);
                             })->orderBy("coddis")->get();
                 @endphp
-                @if($turmas_eletivas_livres->isNotEmpty())
-                    <h2 class="text-left"><b>{!! "Disciplinas Optativas ".(count($habs) > 1 ? ( in_array($codhab, [1,4]) ? "Núcleo Básico" : " ".$codhab." - ".explode("Habilitação em ", $nomhab)[1]) : "") !!}</b></h2>
+                @if($turmas_eletivas->isNotEmpty())
+                    <h2 class="text-left"><b>{!! "Horários das Optativas Eletivas ".(count($habs) > 1 ? ( in_array($codhab, [1,4]) ? "- Núcleo Básico" : " ".$codhab." - ".explode("Habilitação em ", $nomhab)[1]) : "") !!}</b></h2>
+                    <br>
+                @elseif($turmas_eletivas_livres->isNotEmpty())
+                    <h2 class="text-left"><b>{!! "Tabela das Optativas Eletivas e Livres ".(count($habs) > 1 ? ( in_array($codhab, [1,4]) ? "- Núcleo Básico" : " ".$codhab." - ".explode("Habilitação em ", $nomhab)[1]) : "") !!}</b></h2>
                     <br>
                 @endif
                 @if($turmas_eletivas->isNotEmpty())
@@ -354,7 +388,7 @@
                         })->isNotEmpty();
 
                         if($temSab){
-                            array_unshift($dias, "sab");
+                            array_push($dias, "sab");
                         }
 
                         $schedules = array_unique(App\Models\ClassSchedule::whereHas("schoolclasses", function($query)use($turmas_eletivas){$query->whereIn("id",$turmas_eletivas->pluck("id")->toArray());})->select(["horent","horsai"])->where("diasmnocp", "!=", "dom")->get()->toArray(),SORT_REGULAR);
@@ -369,14 +403,14 @@
                     <table class="table table-bordered" style="font-size:15px;">
                         <tr style="background-color:#F5F5F5">
                             <th>Horários</th>
-                            @if($temSab)
-                                <th>Sábado</th>
-                            @endif
                             <th>Segunda</th>
                             <th>Terça</th>
                             <th>Quarta</th>
                             <th>Quinta</th>
                             <th>Sexta</th>
+                            @if($temSab)
+                                <th>Sábado</th>
+                            @endif
                         </tr>
                         @foreach($horarios as $h)
                             <tr>

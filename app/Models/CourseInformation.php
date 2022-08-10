@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Uspdev\Replicado\DB;
 use App\Models\SchoolClass;
 use App\Models\Course;
+use \Datetime;
+use \DateInterval;
 
 class CourseInformation extends Model
 {
@@ -43,7 +45,7 @@ class CourseInformation extends Model
 
     public static function getFromReplicadoBySchoolClassAlternative($schoolclass)
     {
-        $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
+        $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.dtaatvhab, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
         $query .= " FROM UNIDADE AS U, SETOR AS S, PREFIXODISCIP AS PD, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
         $query .= " WHERE (GC.coddis = :coddis)";
         $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
@@ -66,13 +68,22 @@ class CourseInformation extends Model
         ];
 
         $res =  DB::fetchAll($query, $param);
+        
+        foreach($res as $key=>$values){
+            $data = Datetime::createFromFormat("Y-m-d H:i:s",$values["dtaatvhab"]);
+            $data = $data->add(new DateInterval("P".(($values["numsemidl"]-1)*6)."M"));
+            if($data>(new Datetime())){
+                unset($res[$key]);
+            }
+            unset($res[$key]["dtaatvhab"]);
+        }
 
         return array_unique($res,SORT_REGULAR);
     }
 
     public static function getFromReplicadoBySchoolClass($schoolclass)
     {
-        $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
+        $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.dtaatvhab, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
         $query .= " FROM HABILTURMA AS HT, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
         $query .= " WHERE (HT.coddis = :coddis)";
         $query .= " AND HT.codtur LIKE :codtur";
@@ -98,7 +109,7 @@ class CourseInformation extends Model
         $res = DB::fetchAll($query, $param);
 
         if(!$res and in_array(substr($schoolclass->codtur,-2,2),array_keys(self::$codtur_by_course))){
-            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
+            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.dtaatvhab, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
             $query .= " FROM CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
             $query .= " WHERE (GC.coddis = :coddis)";
             $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
@@ -123,7 +134,7 @@ class CourseInformation extends Model
         }
 
         if(!$res and (substr($schoolclass->codtur,-2,2) == "41" or substr($schoolclass->codtur,-2,2) == "51") and !$schoolclass->externa){
-            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
+            $query = " SELECT CS.nomcur, CS.codcur, GC.numsemidl, HGR.dtaatvhab, HGR.codhab, HGR.nomhab, HGR.perhab, GC.tipobg";
             $query .= " FROM UNIDADE AS U, SETOR AS S, PREFIXODISCIP AS PD, CURSOGR as CS, HABILITACAOGR AS HGR, CURRICULOGR AS CGR, GRADECURRICULAR AS GC";
             $query .= " WHERE (GC.coddis = :coddis)";
             $query .= " AND GC.verdis = (SELECT MAX(GC2.verdis) 
@@ -146,6 +157,15 @@ class CourseInformation extends Model
             ];
     
             $res =  DB::fetchAll($query, $param);
+        }
+        
+        foreach($res as $key=>$values){
+            $data = Datetime::createFromFormat("Y-m-d H:i:s",$values["dtaatvhab"]);
+            $data = $data->add(new DateInterval("P".(($values["numsemidl"]-1)*6)."M"));
+            if($data>(new Datetime())){
+                unset($res[$key]);
+            }
+            unset($res[$key]["dtaatvhab"]);
         }
 
         return array_unique($res,SORT_REGULAR);
