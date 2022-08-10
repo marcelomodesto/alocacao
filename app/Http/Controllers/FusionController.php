@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Fusion;
 use App\Models\SchoolTerm;
+use App\Models\SchoolClass;
 use Illuminate\Http\Request;
 
 class FusionController extends Controller
@@ -88,5 +89,27 @@ class FusionController extends Controller
     public function destroy(Fusion $fusion)
     {
         //
+    }
+
+    public function disjoint(SchoolClass $schoolclass)
+    {
+        if(count($schoolclass->fusion->schoolclasses)==2){
+            $sc2 = $schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->first();
+            $sc2->fusion_id = null;
+            $sc2->save();
+            $schoolclass->fusion->delete();
+        }elseif($schoolclass->fusion->master->id == $schoolclass->id){
+            $fusion = $schoolclass->fusion;
+            if($schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->where("tiptur","Graduação")->exists()){
+                $schoolclass->fusion->master()->associate($schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->where("tiptur", "Graduação")->first());
+            }else{
+                $fusion->master()->associate($schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->first());
+            }
+            $fusion->save();
+        }
+        $schoolclass->fusion_id = null;
+        $schoolclass->save();
+        
+        return back();
     }
 }

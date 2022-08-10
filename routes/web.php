@@ -55,6 +55,7 @@ Route::patch('/rooms/distributes', [RoomController::class, 'distributes'])->name
 Route::get('/rooms/dissociate/{schoolclass}', [RoomController::class, 'dissociate'])->name('rooms.dissociate');
 Route::resource('rooms', RoomController::class);
 
+Route::get('/fusions/disjoint/{schoolclass}', [FusionController::class, 'disjoint'])->name('fusions.disjoint');
 Route::resource('fusions', FusionController::class);
 
 Route::get('/monitor/getImportProcess', [MonitorController::class, 'getImportProcess']);

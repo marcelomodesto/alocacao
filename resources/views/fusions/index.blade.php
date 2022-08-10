@@ -26,6 +26,7 @@
                         <th>Código da Disciplina</th>
                         <th>Nome da Disciplina</th>
                         <th>Tipo da Turma</th>
+                        <th>Desmembrar<br></th>
                     </tr>
 
                     @foreach($fusions as $fusion)
@@ -56,6 +57,14 @@
                                 <td>{{ $fusion->schoolclasses[$x]->coddis }}</td>
                                 <td>{{ $fusion->schoolclasses[$x]->nomdis }}</td>
                                 <td>{{ $fusion->schoolclasses[$x]->tiptur }}</td>
+                                <td>
+                                    <form method="get"  action="{{ route('fusions.disjoint', $fusion->schoolclasses[$x]) }}" style="display: inline;">
+                                        @csrf
+                                        <button class="btn px-0">
+                                            <i class="fas fa-minus-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @endforeach
                     @endforeach
