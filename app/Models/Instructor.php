@@ -113,8 +113,10 @@ class Instructor extends Model
         $query .= " WHERE P.codpes = :codpes";
         $query .= " AND VP.codpes = :codpes";
         $query .= " AND EP.codpes = :codpes";
+        $query .= " AND EP.stamtr = :stamtr";
         $param = [
             'codpes' => $codpes,
+            'stamtr' => 'S'
         ];
 
         $res = array_unique(DB::fetchAll($query, $param),SORT_REGULAR);
@@ -126,5 +128,22 @@ class Instructor extends Model
         }else{
             return [];
         }
+    }
+    
+    public static function getFromReplicadoByNompes($nompes)
+    {
+        $query = " SELECT P.codpes, P.nompes, EP.codema";
+        $query .= " FROM PESSOA AS P, EMAILPESSOA as EP";
+        $query .= " WHERE P.nompes like :nompes";
+        $query .= " AND EP.codpes = P.codpes";
+        $query .= " AND EP.stamtr = :stamtr";
+        $param = [
+            'nompes' => "%".$nompes."%",
+            'stamtr' => 'S'
+        ];
+
+        $res = array_unique(DB::fetchAll($query, $param),SORT_REGULAR);
+
+        return $res;
     }
 }

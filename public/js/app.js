@@ -99,47 +99,65 @@
         $('#horsai-add').val("");
       });
       $('#btn-addInstructor2').on('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+        var codpes = $('#chosen-instructor:checked').val();
+        var nompes = $("label[for='"+codpes+"']").text();
         var count = document.getElementById('count-new-instructor');
         var id = parseInt(count.value)+1;
         count.value = id;
-        var codpes = $('#codpes-add').val();
-        $('#codpes-div').empty();
-        if($.isNumeric(codpes)){
-          $.ajax({
-            url: baseURL + '/instructors?codpes=' + codpes,
-            dataType: 'json',
-          success: function success(instructor){
-            if(instructor != ""){
-                var nompes = instructor['nompes'];
-                var codpes = instructor['codpes'];
-                var html = ['<div id="instrutor-new'+id+'">',
-                    '<input id="instrutores[new'+id+'][codpes]" name="instrutores[new'+id+'][codpes]" type="hidden" value='+codpes+'>',
-                    '<label id="label-instrutor-new'+id+'" class="font-weight-normal">'+nompes+'</label>',
-                    '<a class="btn btn-link btn-sm text-dark text-decoration-none"',
-                    '    style="padding-left:0px"',
-                    '    id="btn-remove-instrutor-new'+id+'"',
-                    '    onclick="removeInstrutor(\'new'+id+'\')"',
-                    '>',
-                    '    <i class="fas fa-trash-alt"></i>',
-                    '</a>',
-                    '<br/>',
-                '</div>'].join("\n");
-                $('#novos-instrutores').append(html);
-                $('#addInstructorModal').hide();
-                $('body').removeClass('modal-open');
-                $('.modal-backdrop').remove(); 
-            } else{
-              var error = "<p class='alert alert-warning align-items-center'>Docente não encontrado</p>";
-              $('#codpes-div').append(error);
+        $('#msn-div').empty();
+        $('#select-instructor-div').empty();
+        if(codpes != "" && nompes != ""){
+          var html = ['<div id="instrutor-new'+id+'">',
+              '<input id="instrutores[new'+id+'][codpes]" name="instrutores[new'+id+'][codpes]" type="hidden" value='+codpes+'>',
+              '<label id="label-instrutor-new'+id+'" class="font-weight-normal">'+nompes+'</label>',
+              '<a class="btn btn-link btn-sm text-dark text-decoration-none"',
+              '    style="padding-left:0px"',
+              '    id="btn-remove-instrutor-new'+id+'"',
+              '    onclick="removeInstrutor(\'new'+id+'\')"',
+              '>',
+              '    <i class="fas fa-trash-alt"></i>',
+              '</a>',
+              '<br/>',
+          '</div>'].join("\n");
+          $('#novos-instrutores').append(html);
+          $('#addInstructorModal').hide();
+          $('body').removeClass('modal-open');
+          $('.modal-backdrop').remove(); 
+        }else{
+          $('#msn-div').empty();
+          var error = "<p class='alert alert-warning align-items-center'>Nenhum docente selecionado</p>";
+          $('#msn-div').append(error);
+        }
+      });
+      $("#btn-searchInstructor").on("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var nompes = $('#nompes-add').val();
+        $('#msn-div').empty();
+        $('#select-instructor-div').empty();
+        if(nompes != ""){
+            $.ajax({
+              url: baseURL + '/instructors?nompes=' + nompes,
+              dataType: 'json',
+            success: function success(instructors){
+              if(instructors != ""){
+                var label_titulo = "<h4 class='modal-title text-center'>Escolha uma pessoa</h4>";
+                $('#msn-div').append(label_titulo);
+                instructors.forEach(function (instructor, i){
+                  if(i<10){
+                    var html ="<input class='checkbox' type='radio' id='chosen-instructor' name='chosen-instructor' value='"+instructor['codpes']+"'/></input><label for='"+instructor['codpes']+"'> "+instructor['nompes']+"</label><br>"
+                    $('#select-instructor-div').append(html);
+                  }
+                })
+              } else{
+                var error = "<p class='alert alert-warning align-items-center'>Docente não encontrado</p>";
+                $('#msn-div').append(error);
+              }
             }
-          }
           });
         }else{
-          var error = "<p class='alert alert-warning align-items-center'>Informe um número USP valido</p>";
-          $('#codpes-div').append(error);
-
+          var error = "<p class='alert alert-warning align-items-center'>Informe um nome</p>";
+          $('#msn-div').append(error);
         }
       });
       $('#addInstructorModal').on('show.bs.modal', function(e){

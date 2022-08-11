@@ -19,9 +19,15 @@ class InstructorController extends Controller
         $validated = $request->validated();
         
         if($request->expectsJson()){
-            $codpes = $request->get('codpes');
-            
-            return response()->json(Instructor::getFromReplicadoByCodpes($codpes));
+            if(array_key_exists('nompes', $validated)){
+                $nompes = $validated['nompes'];
+
+                $instructor = Instructor::getFromReplicadoByNompes($nompes);
+                if($instructor){
+                    return response()->json($instructor);
+                }
+            }
+            return response()->json("");
         }
     }
 
