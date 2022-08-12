@@ -37,26 +37,32 @@
                         <th>Professor(es)</th>
                     </tr>
 
-                    @foreach($schoolclasses as $schoolclasse)
+                    @foreach($schoolclasses as $schoolclass)
                         <tr style="font-size:12px;">
-                            <td style="vertical-align: middle;">{{ $schoolclasse->codtur }}</td>
-                            <td style="vertical-align: middle;">{{ $schoolclasse->coddis }}</td>
+                            <td style="vertical-align: middle;">{{ $schoolclass->codtur }}</td>
+                            <td style="vertical-align: middle;">{{ $schoolclass->coddis }}</td>
                             <td style="vertical-align: middle;">                                
                                 <a class="text-dark" target="_blank"
-                                    href="{{ $schoolclasse->tiptur=='Graduação' ? 'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$schoolclasse->coddis : ''}}"
+                                    href="{{ $schoolclass->tiptur=='Graduação' ? 'https://uspdigital.usp.br/jupiterweb/obterTurma?nomdis=&sgldis='.$schoolclass->coddis : ''}}"
                                 >
-                                    {{ $schoolclasse->nomdis }}
+                                    {{ $schoolclass->nomdis }}
                                 </a>
                             </td>
-                            <td style="vertical-align: middle;">{{ $schoolclasse->tiptur }}</td>
-                            <td style="white-space: nowrap;vertical-align: middle;">{{ $schoolclasse->room ? $schoolclasse->room->nome : "Sem Sala" }}</td>
+                            <td style="vertical-align: middle;">{{ $schoolclass->tiptur }}</td>
                             <td style="white-space: nowrap;vertical-align: middle;">
-                                @foreach($schoolclasse->classschedules as $schedule)
+                                @if($schoolclass->fusion()->exists())
+                                    {{ $schoolclass->fusion->master->room ? $schoolclass->fusion->master->room->nome : "Sem Sala" }}
+                                @else
+                                    {{ $schoolclass->room ? $schoolclass->room->nome : "Sem Sala" }}
+                                @endif
+                            </td>
+                            <td style="white-space: nowrap;vertical-align: middle;">
+                                @foreach($schoolclass->classschedules as $schedule)
                                     {{ $schedule->diasmnocp . ' ' . $schedule->horent . ' ' . $schedule->horsai }} <br/>
                                 @endforeach
                             </td>
                             <td style="white-space: nowrap;vertical-align: middle;">
-                                @foreach($schoolclasse->instructors as $instructor)
+                                @foreach($schoolclass->instructors as $instructor)
                                     {{ $instructor->getPronounTreatment() . $instructor->getNomAbrev()}} <br/>
                                 @endforeach
                             </td>
