@@ -22,6 +22,7 @@ use App\Models\Priority;
 use App\Models\SchoolClass;
 use App\Models\CourseInformation;
 use App\Models\Fusion;
+use Illuminate\Support\Facades\Auth;
 
 
 class RoomController extends Controller
@@ -33,6 +34,10 @@ class RoomController extends Controller
      */
     public function index()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $salas = Room::all();
 
         return view('rooms.index', compact(['salas']));
@@ -67,6 +72,10 @@ class RoomController extends Controller
      */
     public function show(Room $room)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         return view('rooms.show', compact(['room']));
     }
 
@@ -101,6 +110,10 @@ class RoomController extends Controller
 
     public function dissociate(SchoolClass $schoolclass)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $schoolclass->room()->dissociate();
         $schoolclass->save();
 
@@ -109,6 +122,10 @@ class RoomController extends Controller
 
     public function compatible(CompatibleRoomRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $room = Room::find($validated["room_id"]);
@@ -133,6 +150,10 @@ class RoomController extends Controller
 
     public function allocate(AllocateRoomRequest $request, Room $room)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $room->schoolclasses()->save(SchoolClass::find($validated["school_class_id"]));
@@ -142,6 +163,10 @@ class RoomController extends Controller
 
     public function makeReport()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         ProcessReport::dispatch();
 
         return back();
@@ -149,6 +174,10 @@ class RoomController extends Controller
 
     public function downloadReport()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $job = Monitor::where("name","App\Jobs\ProcessReport")->latest("started_at")->first();
 
         $file = json_decode($job->data)->fileName;
@@ -160,7 +189,7 @@ class RoomController extends Controller
 
     public function distributes(DistributesRoomRequest $request)
     {
-        if(!Gate::allows('distribuir turmas nas salas')){
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
             abort(403);
         }
 
@@ -269,7 +298,7 @@ class RoomController extends Controller
 
     public function reservation()
     {
-        if(!Gate::allows('reservar salas no urano')){
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador"])){
             abort(403);
         }
 
@@ -281,7 +310,7 @@ class RoomController extends Controller
 
     public function empty(EmptyRoomRequest $request)
     {
-        if(!Gate::allows('esvaziar salas')){
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
             abort(403);
         }
 

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreInstructorRequest;
 use App\Http\Requests\UpdateInstructorRequest;
 use App\Http\Requests\IndexInstructorRequest;
 use App\Models\Instructor;
+use Illuminate\Support\Facades\Auth;
 
 class InstructorController extends Controller
 {
@@ -16,6 +17,10 @@ class InstructorController extends Controller
      */
     public function index(IndexInstructorRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
         
         if($request->expectsJson()){

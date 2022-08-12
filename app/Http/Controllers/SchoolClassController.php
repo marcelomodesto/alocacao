@@ -18,6 +18,7 @@ use App\Models\Fusion;
 use App\Models\Room;
 use App\Models\CourseInformation;
 use App\Jobs\ProcessImportSchoolClasses;
+use Illuminate\Support\Facades\Auth;
 use Session;
 
 class SchoolClassController extends Controller
@@ -29,6 +30,10 @@ class SchoolClassController extends Controller
      */
     public function index(IndexSchoolClassRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $schoolterm = SchoolTerm::getLatest();
 
         $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->where("externa", "Não")->get() : [];
@@ -43,6 +48,10 @@ class SchoolClassController extends Controller
      */
     public function create()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $turma = new SchoolClass;
         $schoolTerm = SchoolTerm::getLatest();
         $turma->schoolterm()->associate($schoolTerm);
@@ -58,6 +67,9 @@ class SchoolClassController extends Controller
      */
     public function store(StoreSchoolClassRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
 
         $validated = $request->validated();
         $schoolTerm = SchoolTerm::find($validated["periodoId"]);
@@ -125,6 +137,9 @@ class SchoolClassController extends Controller
      */
     public function edit(SchoolClass $schoolclass)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
 
         $turma = $schoolclass;
 
@@ -140,6 +155,10 @@ class SchoolClassController extends Controller
      */
     public function update(UpdateSchoolClassRequest $request, SchoolClass $schoolclass)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $schoolclass->instructors()->detach();
@@ -171,6 +190,10 @@ class SchoolClassController extends Controller
      */
     public function destroy(SchoolClass $schoolclass)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $schoolclass->instructors()->detach();
         $schoolclass->classschedules()->detach();
         $schoolclass->courseinformations()->detach();
@@ -199,6 +222,10 @@ class SchoolClassController extends Controller
 
     public function makeInternalInBatch(MakeInternalInBatchSchoolClassRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         foreach($validated["school_classes_id"] as $id){
@@ -212,6 +239,10 @@ class SchoolClassController extends Controller
 
     public function makeExternalInBatch(MakeExternalInBatchSchoolClassRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         foreach($validated["school_classes_id"] as $id){
@@ -225,6 +256,10 @@ class SchoolClassController extends Controller
 
     public function destroyInBatch(DestroyInBatchSchoolClassRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         foreach($validated["school_classes_id"] as $id){
@@ -240,6 +275,10 @@ class SchoolClassController extends Controller
 
     public function externals()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $schoolterm = SchoolTerm::getLatest();
 
         $turmas = $schoolterm ? SchoolClass::whereBelongsTo($schoolterm)->where("externa", true)->get() : [];
@@ -249,6 +288,10 @@ class SchoolClassController extends Controller
 
     public function import()
     {        
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         ProcessImportSchoolClasses::dispatch();
 
         return redirect('/schoolclasses');

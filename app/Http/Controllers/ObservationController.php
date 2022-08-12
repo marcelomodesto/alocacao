@@ -6,6 +6,7 @@ use App\Http\Requests\StoreObservationRequest;
 use App\Http\Requests\UpdateObservationRequest;
 use App\Models\Observation;
 use App\Models\SchoolTerm;
+use Illuminate\Support\Facades\Auth;
 
 class ObservationController extends Controller
 {
@@ -16,6 +17,10 @@ class ObservationController extends Controller
      */
     public function index()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $schoolterm = SchoolTerm::getLatest();
 
         $observations = Observation::whereBelongsTo($schoolterm)->get();
@@ -30,6 +35,10 @@ class ObservationController extends Controller
      */
     public function create()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $observation = new Observation;
 
         return view("observations.create", compact("observation"));
@@ -43,6 +52,10 @@ class ObservationController extends Controller
      */
     public function store(StoreObservationRequest $request)
     {        
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $schoolterm = SchoolTerm::getLatest();
@@ -89,6 +102,10 @@ class ObservationController extends Controller
      */
     public function update(UpdateObservationRequest $request, Observation $observation)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         $observation->update($validated);
@@ -104,6 +121,10 @@ class ObservationController extends Controller
      */
     public function destroy(Observation $observation)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $observation->delete();
 
         return back();

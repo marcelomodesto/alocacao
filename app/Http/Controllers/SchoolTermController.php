@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSchoolTermRequest;
 use App\Http\Requests\UpdateSchoolTermRequest;
 use App\Models\SchoolTerm;
+use Illuminate\Support\Facades\Auth;
 
 class SchoolTermController extends Controller
 {
@@ -15,6 +16,9 @@ class SchoolTermController extends Controller
      */
     public function index()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
 
         $schoolterms = SchoolTerm::orderBy('year')
         ->orderBy('period')->get();
@@ -29,6 +33,9 @@ class SchoolTermController extends Controller
      */
     public function create()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
 
         $periodo = new SchoolTerm;
 
@@ -43,6 +50,10 @@ class SchoolTermController extends Controller
      */
     public function store(StoreSchoolTermRequest $request)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $validated = $request->validated();
 
         SchoolTerm::firstOrCreate($validated);

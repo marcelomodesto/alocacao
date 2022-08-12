@@ -6,6 +6,7 @@ use App\Models\Fusion;
 use App\Models\SchoolTerm;
 use App\Models\SchoolClass;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FusionController extends Controller
 {
@@ -16,6 +17,10 @@ class FusionController extends Controller
      */
     public function index()
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
         $schoolterm = SchoolTerm::getLatest();
 
         $fusions = Fusion::whereHas("schoolclasses", function ($query) use ($schoolterm) {
@@ -93,6 +98,10 @@ class FusionController extends Controller
 
     public function disjoint(SchoolClass $schoolclass)
     {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+        
         if(count($schoolclass->fusion->schoolclasses)==2){
             $sc2 = $schoolclass->fusion->schoolclasses()->where("id","!=",$schoolclass->id)->first();
             $sc2->fusion_id = null;
