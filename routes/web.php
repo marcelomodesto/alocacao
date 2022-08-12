@@ -62,6 +62,7 @@ Route::get('/monitor/getImportProcess', [MonitorController::class, 'getImportPro
 Route::get('/monitor/getReportProcess', [MonitorController::class, 'getReportProcess']);
 Route::get('/monitor/getReservationProcess', [MonitorController::class, 'getReservationProcess']);
 
+Route::get('/courseschedules/pos', [CourseScheduleController::class, 'showPos'])->name('courseschedules.showPos');
 Route::get('/courseschedules/all', [CourseScheduleController::class, 'showAll'])->name('courseschedules.showAll');
 Route::get('/courseschedules/licnot', [CourseScheduleController::class, 'showLicNot'])->name('courseschedules.showLicNot');
 Route::get('/courseschedules', [CourseScheduleController::class, 'index'])->name('courseschedules.index');

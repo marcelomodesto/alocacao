@@ -74,3 +74,26 @@
   font-weight: bold;
   text-shadow: 1px 1px 0 #fff;
 }
+
+.button-link {
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  /*optional*/
+  font-family: arial, sans-serif;
+  /*input has OS specific font-family*/
+  color: #007bff;
+  cursor: pointer;
+}
+
+.button-link:hover {
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  /*optional*/
+  font-family: arial, sans-serif;
+  /*input has OS specific font-family*/
+  color: #069;
+  text-decoration: underline;
+  cursor: pointer;
+}

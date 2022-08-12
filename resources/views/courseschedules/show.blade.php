@@ -1,6 +1,6 @@
 @extends('main')
 
-@section('title', 'Horário das Disciplinas')
+@section('title', $course->nomcur )
 
 @section('content')
   @parent 
@@ -77,12 +77,17 @@
                     @php
                     $turmas = App\Models\SchoolClass::whereBelongsTo($schoolterm)
                         ->whereHas("courseinformations", function($query)use($semestre, $course, $codhab, $habs){
-                            $query->whereIn("numsemidl",[$semestre-1,$semestre])
+                            if(count($habs)>1){
+                                $query->whereIn("numsemidl",[$semestre-1,$semestre])
                                 ->where("nomcur",$course->nomcur)
                                 ->where("perhab", $course->perhab)
-                                ->where("tipobg", "O");
-                            if(count($habs)>1){
-                                $query->whereIn("codhab", [1,4,$codhab]);
+                                ->where("tipobg", "O")
+                                ->whereIn("codhab", [1,4,$codhab]);
+                            }else{
+                                $query->whereIn("numsemidl",[$semestre-1,$semestre])
+                                    ->where("nomcur",$course->nomcur)
+                                    ->where("perhab", $course->perhab)
+                                    ->where("tipobg", "O");
                             }
                             })->get();
                     @endphp
@@ -130,7 +135,7 @@
                                                         $conflict = true;
                                                     }
                                                 }
-                                                if(!$conflict){
+                                                if(!$conflict and $turma->coddis != "HCV0129"){
                                                     return false;
                                                 }
                                             }
