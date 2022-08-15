@@ -13,6 +13,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "romanzipp/laravel-queue-monitor": "^2.3",
+        "staudenmeir/eloquent-has-many-deep": "^1.14",
         "uspdev/laravel-usp-theme": "^2.5",
         "uspdev/replicado": "^1.13",
         "uspdev/senhaunica-socialite": "^4.3"

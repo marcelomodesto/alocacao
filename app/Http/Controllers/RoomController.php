@@ -79,6 +79,15 @@ class RoomController extends Controller
         return view('rooms.show', compact(['room']));
     }
 
+    public function showFreeTime()
+    {
+        if(!Auth::check() or !Auth::user()->hasRole(["Administrador", "Operador"])){
+            abort(403);
+        }
+
+        return view('rooms.showFreeTime');
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

@@ -45,6 +45,7 @@ Route::resource('schoolclasses', SchoolClassController::class);
 
 Route::resource('instructors', InstructorController::class);
 
+Route::get('/rooms/showFreeTime', [RoomController::class, 'showFreeTime'])->name('rooms.showFreeTime');
 Route::patch('/rooms/empty', [RoomController::class, 'empty'])->name('rooms.empty');
 Route::get('/rooms/reservation', [RoomController::class, 'reservation'])->name('rooms.reservation');
 Route::get('/rooms/makeReport', [RoomController::class, 'makeReport'])->name('rooms.makeReport');

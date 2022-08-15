@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\SchooClass;
 use App\Models\Priority;
+use App\Models\ClassSchedule;
 use Illuminate\Support\Facades\DB;
 
 class Room extends Model
 {
     use HasFactory;
+    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
     public $prioridade = 0;
 
     protected $fillable = [
@@ -21,6 +23,11 @@ class Room extends Model
     public function schoolclasses()
     {
         return $this->hasMany(SchoolClass::class);
+    }
+
+    public function schedules()
+    {
+        return $this->hasManyDeepFromRelations($this->schoolclasses(), (new SchoolClass())->classschedules());
     }
 
     public function priorities()
