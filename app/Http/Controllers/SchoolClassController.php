@@ -17,6 +17,7 @@ use App\Models\Priority;
 use App\Models\Fusion;
 use App\Models\Room;
 use App\Models\CourseInformation;
+use App\Models\Course;
 use App\Jobs\ProcessImportSchoolClasses;
 use Illuminate\Support\Facades\Auth;
 use Session;
