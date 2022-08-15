@@ -11,7 +11,7 @@
                 $schoolterm = App\Models\SchoolTerm::getLatest();
                 $schoolclasses = App\Models\SchoolClass::whereBelongsTo($schoolterm)->where("externa", false)->orderBy("coddis")->get();
             @endphp
-            <h1 class='text-center mb-5'><b>Todas Turmas</b></h1>
+            <h1 class='text-center mb-5'><b>Relação completa</b></h1>
             <h2 class='text-center mb-5'>{!! $schoolterm->period . ' de ' . $schoolterm->year !!}</h2>
 
             @foreach(App\Models\Observation::whereBelongsTo($schoolterm)->get() as $observation)
