@@ -33,7 +33,7 @@ class ClassSchedule extends Model
             'codtur' => $schoolclass['codtur'],
         ];
 
-        return DB::fetchAll($query, $param);
+        return array_unique(DB::fetchAll($query, $param),SORT_REGULAR);
     }
 
     public static function getFromReplicadoByPosSchoolClass($schoolclass){
@@ -49,7 +49,7 @@ class ClassSchedule extends Model
         ];
         
         $days = ['1DM'=>'dom', '2SG'=>'seg', '3TR'=>'ter', '4QA'=>'qua', '5QI'=>'qui', '6SX'=>'sex'];
-        $res = DB::fetchAll($query, $param);
+        $res = array_unique(DB::fetchAll($query, $param),SORT_REGULAR);
 
         foreach($res as $key => $cs){
             $res[$key]['diasmnocp'] = $days[$res[$key]['diasmnocp']];

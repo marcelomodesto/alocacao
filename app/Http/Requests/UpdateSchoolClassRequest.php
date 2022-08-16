@@ -30,7 +30,7 @@ class UpdateSchoolClassRequest extends FormRequest
             'horarios.*.diasmnocp' => 'required|in:seg,ter,qua,qui,sex,sab,dom',
             'horarios.*.horent' => 'required|date_format:H:i|before:horarios.*.horsai',
             'horarios.*.horsai' => 'required|date_format:H:i',
-            'instrutores' => 'required|array',
+            'instrutores' => 'sometimes|array',
             'instrutores.*.codpes' => 'required|numeric',
         ];
 

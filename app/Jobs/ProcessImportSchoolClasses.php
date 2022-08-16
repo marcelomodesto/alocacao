@@ -122,7 +122,25 @@ class ProcessImportSchoolClasses implements ShouldQueue, ShouldBeUnique
             $this->queueProgress(10 + floor($n*70/$t));
         }
 
-        $schoolclasses = SchoolClass::where("tiptur", "Graduação")->get();
+        $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->get();
+        $schoolclasses = $schoolclasses->filter(function($schoolclass){
+            if(count($schoolclass->classschedules)>1 and count($schoolclass->classschedules->pluck("diasmnocp")->unique()->toArray())==1){
+                return true;
+            }
+            return false;
+        });
+
+        foreach($schoolclasses as $schoolclass){
+            $schedules = $schoolclass->classschedules;
+            $schoolclass->classschedules()->detach();
+            $schoolclass->classschedules()->attach(ClassSchedule::firstOrCreate([
+                "diasmnocp"=>$schedules->pluck("diasmnocp")[0],
+                "horent"=>$schedules->pluck("horent")->min(),
+                "horsai"=>$schedules->pluck("horsai")->max()
+            ]));
+        }
+
+        $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->where("tiptur", "Graduação")->get();
         $schoolclasses = $schoolclasses->filter(function($schoolclass){
             if(count(SchoolClass::where("coddis",$schoolclass->coddis)->get())==1){
                 return true;
@@ -138,7 +156,7 @@ class ProcessImportSchoolClasses implements ShouldQueue, ShouldBeUnique
         }
 
         $cis = [];
-        foreach(SchoolClass::where("tiptur", "Graduação")->whereDoesntHave("courseinformations")->get() as $schoolclass){
+        foreach(SchoolClass::whereBelongsTo($schoolterm)->where("tiptur", "Graduação")->whereDoesntHave("courseinformations")->get() as $schoolclass){
             if(!SchoolClass::where("coddis",$schoolclass->coddis)->whereHas("courseinformations")->exists()){
                 array_push($cis,["schoolclass"=>$schoolclass,"infos"=>CourseInformation::getFromReplicadoBySchoolClassAlternative($schoolclass)]);
             }
