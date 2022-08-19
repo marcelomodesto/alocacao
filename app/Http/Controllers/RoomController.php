@@ -7,6 +7,7 @@ use App\Http\Requests\CompatibleRoomRequest;
 use App\Http\Requests\AllocateRoomRequest;
 use App\Http\Requests\DistributesRoomRequest;
 use App\Http\Requests\EmptyRoomRequest;
+use App\Http\Requests\ReservationRoomRequest;
 use Ismaelw\LaraTeX\LaraTeX;
 use App\Jobs\ProcessReport;
 use App\Jobs\ProcessReservation;
@@ -305,13 +306,15 @@ class RoomController extends Controller
         return back();
     }
 
-    public function reservation()
+    public function reservation(ReservationRoomRequest $request)
     {
         if(!Auth::check() or !Auth::user()->hasRole(["Administrador"])){
             abort(403);
         }
 
-        ProcessReservation::dispatch();
+        $validated = $request->validated();
+
+        ProcessReservation::dispatch($validated["rooms_id"]);
 
         Session::put("alert-info", "As reservas no Urano estão sendo processadas.");
         return back();

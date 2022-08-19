@@ -18,14 +18,16 @@ class ProcessReservation implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, IsMonitored;
 
+    public $rooms;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($rooms)
     {
-        //
+        $this->rooms = $rooms;
     }
 
     public function progressCooldown(): int
@@ -47,7 +49,9 @@ class ProcessReservation implements ShouldQueue, ShouldBeUnique
 
         $schoolterm = SchoolTerm::getLatest();
 
-        $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->whereHas("room")->get();
+        $rooms_id = $this->rooms;
+        
+        $schoolclasses = SchoolClass::whereBelongsTo($schoolterm)->whereHas("room", function($query)use($rooms_id){$query->whereIn("id",$rooms_id);})->get();
 
         $t = count($schoolclasses)*2;
         $n = 0;

@@ -58,7 +58,7 @@
                                 </button>
                             </form>
 
-                            <form style="display: inline;"  action="{{ route('rooms.reservation') }}" method="GET"
+                            <form id="reservationForm" style="display: inline;"  action="{{ route('rooms.reservation') }}" method="GET"
                             enctype="multipart/form-data"
                             >
                                 @csrf
@@ -79,6 +79,7 @@
                             <th style="vertical-align: middle;">Assentos</th>
                             <th>Distribuir<br>nas<br>Salas</th>
                             <th style="vertical-align: middle;">Esvaziar<br>Salas</th>
+                            <th>Reservar<br>nas<br>Salas</th>
                             <th></th>
                         </tr>
                         @foreach($salas as $sala)
@@ -141,6 +142,9 @@
                                 <td>
                                     <input id="rooms_id" form="emptyForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" checked>
                                 </td>
+                                <td>
+                                    <input id="rooms_id" form="reservationForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" {!! !in_array($sala->nome, ["CEC02","CEC04","CEC05","CEC06"]) ? 'checked' : '' !!}>
+                                </td>
                                 <td class="text-center" style="white-space: nowrap;">
                                     <a  class="btn btn-outline-dark btn-sm"
                                         data-toggle="tooltip" data-placement="top"
@@ -153,7 +157,7 @@
                         @endforeach
 
                         <tr>
-                                <td style="white-space: nowrap;" colspan=4>Salas livres por horário</td>
+                                <td style="white-space: nowrap;" colspan=5>Salas livres por horário</td>
                                 <td class="text-center" style="white-space: nowrap;">
                                     <a  class="btn btn-outline-dark btn-sm"
                                         data-toggle="tooltip" data-placement="top"
