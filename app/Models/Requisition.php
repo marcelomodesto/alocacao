@@ -112,7 +112,7 @@ class Requisition extends Model
 
         $requisition->titulo = $titulo;
         $requisition->videoConf = 0;
-        $requisition->usuario = 99481;
+        $requisition->usuario = env("URANO_USER_ID");
         $requisition->dom = 0;
         $requisition->seg = 0;
         $requisition->ter = 0;
