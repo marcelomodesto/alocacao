@@ -143,7 +143,7 @@
                                     <input id="rooms_id" form="emptyForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" checked>
                                 </td>
                                 <td>
-                                    <input id="rooms_id" form="reservationForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" {!! !in_array($sala->nome, ["CEC02","CEC04","CEC05","CEC06"]) ? 'checked' : '' !!} {!! in_array($sala->nome, ["CEC02","CEC04","CEC05","CEC06"]) ? 'disabled' : '' !!}>
+                                    <input id="rooms_id" form="reservationForm" class="checkbox" type="checkbox" name="rooms_id[]" value="{{ $sala->id }}" {!! in_array($sala->nome, ["CEC02","CEC04","CEC05","CEC06"]) ? 'disabled' : '' !!}>
                                 </td>
                                 <td class="text-center" style="white-space: nowrap;">
                                     <a  class="btn btn-outline-dark btn-sm"
