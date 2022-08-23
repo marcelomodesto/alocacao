@@ -1,7 +1,7 @@
 
 <br />
 <div align="center">
-  <a href="https://alocacao.ime.usp.br">
+  <a href="https://www.ime.usp.br">
     <img src="assinatura.png" alt="Logo" width="300" height="60">
   </a>
 
@@ -14,7 +14,9 @@
 
 ## Sobre o Projeto
 
-Sistema para apoiar a alocação das salas de aula IME. 
+O objetivo do sistema é a alocação automática das salas de aula, simplificação nos ajustes e trocas de salas e a divulgação online no início de cada período letivo.
+
+
 
 <br />
 
