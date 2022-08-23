@@ -1,7 +1,7 @@
 
 <br />
 <div align="center">
-  <a href="https://monitoria.ime.usp.br">
+  <a href="https://alocacao.ime.usp.br">
     <img src="logo_ime_vert.jpg" alt="Logo" width="150" height="150">
   </a>
 
