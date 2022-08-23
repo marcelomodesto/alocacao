@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://alocacao.ime.usp.br">
-    <img src="logo_ime_vert.jpg" alt="Logo" width="150" height="150">
+    <img src="assinatura.png" alt="Logo" width="600" height="120">
   </a>
 
   <h3 align="center">Sistema Alocação</h3>
